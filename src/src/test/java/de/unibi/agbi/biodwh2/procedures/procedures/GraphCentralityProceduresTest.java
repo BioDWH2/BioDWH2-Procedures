@@ -66,9 +66,30 @@ class GraphCentralityProceduresTest {
     }
 
     @Test
-    void closenessTest() {
-        assertTrue((double) GraphCentralityProcedures.closeness(graphConnected, graphConnected.findNode("A"), GraphMode.UNDIRECTED).getRow(0).getValue(1) == 0.1);
-        assertTrue((double) GraphCentralityProcedures.closeness(graphConnected, graphConnected.findNode("G"), GraphMode.UNDIRECTED).getRow(0).getValue(1) == 1.0/11);
+    void closenessTest() throws IOException {
+        Graph graph = Graph.createTempGraph();
+        Node nodeA = graph.addNode("A");
+        Node nodeB = graph.addNode("B");
+        Node nodeC = graph.addNode("C");
+        Node nodeD = graph.addNode("D");
+        Node nodeE = graph.addNode("E");
+        Node nodeF = graph.addNode("F");
+        Node nodeG = graph.addNode("G");
+        Node nodeH = graph.addNode("H");
+        Edge edgeAB = graph.addEdge(nodeA, nodeB, "eAB");
+        Edge edgeBC = graph.addEdge(nodeB, nodeC, "eBC");
+        Edge edgeCD = graph.addEdge(nodeC, nodeD, "eAB");
+        Edge edgeDE = graph.addEdge(nodeD, nodeE, "eDE");
+        Edge edgeDH = graph.addEdge(nodeD, nodeH, "eDH");
+        Edge edgeEF = graph.addEdge(nodeE, nodeF, "eEF");
+        Edge edgeEG = graph.addEdge(nodeE, nodeG, "eEG");
+        Edge edgeEH = graph.addEdge(nodeE, nodeH, "eEH");
+        Edge edgeFG = graph.addEdge(nodeF, nodeG, "eFG");
+        Edge edgeHG = graph.addEdge(nodeH, nodeG, "eHG");
+
+        double degD = (double) GraphCentralityProcedures.closeness(graph, graph.findNode("D"), GraphMode.UNDIRECTED).getRow(0).getValue(1);
+        double degA = (double) GraphCentralityProcedures.closeness(graph, graph.findNode("A"), GraphMode.UNDIRECTED).getRow(0).getValue(1);
+        assertTrue(degD > degA);
     }
 
     @Test

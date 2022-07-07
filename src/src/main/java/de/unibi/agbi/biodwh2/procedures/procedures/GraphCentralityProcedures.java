@@ -60,7 +60,7 @@ public final class GraphCentralityProcedures implements RegistryContainer {
         for(long distance : distances.values()) {
             closeness += distance;
         }
-        closeness =  1.0 / closeness;
+        closeness =  (graph.getNumberOfNodes() - 1) / closeness;
         ResultSet result = new ResultSet();
         result.addRow(new ResultRow(new String[]{"id", "closeness"}, new Object[]{node.getId(), closeness}));
         return result;
