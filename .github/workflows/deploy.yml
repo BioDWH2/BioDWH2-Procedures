@@ -21,6 +21,6 @@ jobs:
       - name: Publish package
         run: |
           cd src
-          mvn --batch-mode deploy --settings src/settings.xml
+          mvn --batch-mode deploy --settings settings.xml
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
