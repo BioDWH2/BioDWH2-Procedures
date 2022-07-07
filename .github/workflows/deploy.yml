@@ -23,4 +23,6 @@ jobs:
           cd src
           mvn --batch-mode deploy --settings settings.xml
         env:
+          USENAME: ${{ github.actor }}
+          PASSWORD: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
