@@ -6,7 +6,15 @@
 
     <groupId>de.unibi.agbi.biodwh2</groupId>
     <artifactId>biodwh2-procedures</artifactId>
-    <version>0.1.0</version>
+    <version>0.1.1</version>
+
+    <distributionManagement>
+        <repository>
+            <id>github</id>
+            <name>GitHub Packages</name>
+            <url>https://maven.pkg.github.com/biodwh2/BioDWH2-Procedures</url>
+        </repository>
+    </distributionManagement>
 
     <dependencies>
         <dependency>
