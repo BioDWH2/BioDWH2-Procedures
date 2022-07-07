@@ -9,21 +9,18 @@ jobs:
     name: Create Release
     runs-on: ubuntu-latest
     if: github.repository == 'BioDWH2/BioDWH2-Procedures' # Only run on main repository and not forks
+    permissions: 
+      contents: read
+      packages: write
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-      - uses: actions/setup-java@v1
+      - uses: actions/checkout@v3
+      - uses: actions/setup-java@v3
         with:
           java-version: '8'
-          java-package: jdk+fx
-      - name: Build with Maven
-        env:
-          USENAME: ${{ github.actor }}
-          PASSWORD: ${{ secrets.GITHUB_TOKEN }}
-        run: mvn package -DskipTests --file src/pom.xml --settings src/settings.xml
-      - name: Publish procedures package
+          distribution: 'adopt'
+      - name: Publish package
         run: |
           cd src
-          mvn -B deploy -pl biodwh2-procedures -am
+          mvn --batch-mode deploy --settings src/settings.xml
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
