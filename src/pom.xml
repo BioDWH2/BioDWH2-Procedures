@@ -6,7 +6,7 @@
 
     <groupId>de.unibi.agbi.biodwh2</groupId>
     <artifactId>biodwh2-procedures</artifactId>
-    <version>0.1.1</version>
+    <version>0.1.2</version>
 
     <distributionManagement>
         <repository>
@@ -31,7 +31,7 @@
         </dependency>
     </dependencies>
 
-    <packaging>pom</packaging>
+    <packaging>jar</packaging>
 
     <build>
         <finalName>${project.artifactId}-v${project.version}</finalName>
