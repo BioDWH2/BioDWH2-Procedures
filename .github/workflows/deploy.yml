@@ -18,6 +18,13 @@ jobs:
         with:
           java-version: '8'
           distribution: 'adopt'
+      - name: Build with Maven
+        env:
+          USERNAME: ${{ github.actor }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          cd src
+          mvn package --file pom.xml --settings settings.xml
       - name: Publish package
         env:
           USERNAME: ${{ github.actor }}
