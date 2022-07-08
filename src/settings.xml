@@ -25,7 +25,7 @@
           <snapshots><enabled>true</enabled></snapshots>
         </repository>
         <repository>
-          <id>Procedures github</id>
+          <id>github</id>
           <name>GitHub Packages</name>
           <url>https://maven.pkg.github.com/biodwh2/biodwh2-procedures</url>
         </repository>
@@ -40,7 +40,7 @@
       <password>${env.GITHUB_TOKEN}</password>
     </server>
     <server>
-      <id>Procedures github</id>
+      <id>github</id>
       <username>${env.USERNAME}</username>
       <password>${env.GITHUB_TOKEN}</password>
     </server>
