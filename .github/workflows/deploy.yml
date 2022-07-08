@@ -19,9 +19,9 @@ jobs:
           java-version: '8'
           distribution: 'adopt'
       - name: Publish package
+        env:
+          USERNAME: ${{ github.actor }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           cd src
           mvn -B deploy --settings settings.xml
-        env:
-          USENAME: ${{ github.actor }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
