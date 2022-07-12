@@ -30,17 +30,25 @@ public class GraphProcedureUtils {
         // init distance mapping and node queue
         HashMap<Long, Long> distances = new HashMap<>();
         for(Node node : graph.getNodes()) {
-            distances.put(node.getId(), Long.MAX_VALUE);
+            if(node.getId() != sourceNode.getId()) {
+                distances.put(node.getId(), Long.MAX_VALUE);
+
+            }
         }
+        distances.put(sourceNode.getId(), Long.valueOf(0));
         PriorityQueue<DistancePair> queue = new PriorityQueue<>();
         queue.add(new DistancePair(sourceNode, 0));
 
         while(!queue.isEmpty()) {
+
             // remove head of queue and set as current node
             DistancePair current = queue.poll();
             Node currentNode = current.getNode();
             long currentDistance = current.getDistance();
             ArrayList<Node> neighbors = GraphProcedureUtils.getNeighbors(graph, currentNode, mode);
+
+            //System.out.println("---------------"+ currentNode.getLabel() +"--------------------");
+
 
             // For each adjacent neighbor: Update distance if required
             for(Node neighbor : neighbors) {
@@ -48,6 +56,7 @@ public class GraphProcedureUtils {
                 if(distances.get(neighborID) > (currentDistance + 1)) {
                     distances.put(neighborID, currentDistance + 1);
                     queue.add(new DistancePair(neighbor, distances.get(neighborID)));
+                    //System.out.println(currentNode.getLabel() + " - " + neighbor.getLabel());
                 }
             }
         }
