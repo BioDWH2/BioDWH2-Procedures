@@ -11,6 +11,8 @@ jobs:
         java-version: 1.8
     - name: Build with Maven
       env:
-        USENAME: ${{ github.actor }}
-        PASSWORD: ${{ secrets.GITHUB_TOKEN }}
-      run: mvn package --file src/pom.xml --settings src/settings.xml
+        USERNAME: ${{ github.actor }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        cd src
+        mvn package --file pom.xml --settings settings.xml
