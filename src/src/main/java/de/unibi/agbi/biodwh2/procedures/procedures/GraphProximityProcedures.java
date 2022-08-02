@@ -22,6 +22,8 @@ public final class GraphProximityProcedures implements RegistryContainer {
      * t ∈ T and the respective closest disease protein in the disease module
      * @param merged Merged graph containing both drug targets and disease proteins
      * @param mode Graph mode, i.e. directed or undirected
+     * @param labelTarget Label describing the drug target nodes
+     * @param labelDiseaseProteins Label describing the disease protein nodes
      * @return Result row with proximity measure for drug-disease pair
      */
     @Procedure(name = "analysis.network.proximity.closest", signature = "TODO",
@@ -42,34 +44,57 @@ public final class GraphProximityProcedures implements RegistryContainer {
     /**
      * Calculates the average length of all shortest paths between drug targets T and disease proteins P.
      * @param merged Merged graph containing both drug targets and disease proteins
+     * @param labelTarget Label describing the drug target nodes
+     * @param labelDiseaseProteins Label describing the disease protein nodes
      * @param mode Graph mode, i.e. directed or undirected
      * @return Result row with proximity measure for drug-disease pair
      */
     @Procedure(name = "analysis.network.proximity.shortest", signature = "TODO",
             description = "Calculates the Shortest measure for a drug target set and a disease protein set")
-    public static ResultSet shortest(final Graph merged, final String labelTargets, final String labelDiseaseProteins, final GraphMode mode) {
+    public static ResultSet shortest(final Graph merged, final String labelTarget, final String labelDiseaseProteins, final GraphMode mode) {
         float sum = 0;
-        for(Node targetNode : merged.getNodes(labelTargets)) {
+        for(Node targetNode : merged.getNodes(labelTarget)) {
             // calculate all shortest paths to all disease proteins and add them up ...
             float sumShortestPaths = 0;
             HashMap<Long, Long> distances = GraphProcedureUtils.dijkstra(merged, targetNode, mode, labelDiseaseProteins);
             for(Long distance : distances.values()) {
                 sumShortestPaths += distance;
             }
-            sumShortestPaths *= (1 / merged.getNumberOfNodes(labelDiseaseProteins));
             // ... and add result to outer sum
-            sum += sumShortestPaths;
+            sum += (1 / merged.getNumberOfNodes(labelDiseaseProteins)) * sumShortestPaths;
         }
-        sum *= (1 / merged.getNumberOfNodes(labelTargets));
+        sum *= (1 / merged.getNumberOfNodes(labelTarget));
         final ResultSet result = new ResultSet("d_s");
         result.addRow(new ResultRow(new String[]{"d_s"}, new Object[]{sum}));
         return result;
     }
 
+    /**
+     * Calculates the Kernel proximity measure by weighting long shortest paths with a penalty.
+     * @param merged Merged graph containing both drug targets and disease proteins
+     * @param labelTargets Label describing the drug target nodes
+     * @param labelDiseaseProteins Label describing the disease protein nodes
+     * @param mode Graph mode, i.e. directed or undirected
+     * @return Result row with kernel measure for drug-disease pair
+     */
     @Procedure(name = "analysis.network.proximity.kernel", signature = "TODO",
             description = "Calculates the Kernel measure for a drug target set and a disease protein set")
-    public static ResultSet kernel(Graph drugTargets, Graph diseaseProteins) {
-        throw new UnsupportedOperationException(Thread.currentThread().getStackTrace()[1].getMethodName() +": Not yet implemented!");
+    public static ResultSet kernel(final Graph merged, final String labelTargets, final String labelDiseaseProteins, final GraphMode mode) {
+        float sum = 0;
+        for(Node drugTarget : merged.getNodes(labelTargets)) {
+            double sumKernel = 0;
+            HashMap<Long, Long> distances = GraphProcedureUtils.dijkstra(merged, drugTarget, mode, labelDiseaseProteins);
+            // add up all distances with exponential penalty ...
+            for(Long distance : distances.values()) {
+                sumKernel += (Math.exp(- distance + 1)) / merged.getNumberOfNodes(labelDiseaseProteins);
+            }
+            // ... and add them to outer sum
+            sum += Math.log(sumKernel);
+        }
+        sum *= ((-1) / merged.getNumberOfNodes(labelTargets));
+        final ResultSet result = new ResultSet("d_k");
+        result.addRow(new ResultRow(new String[]{"d_k"}, new Object[]{sum}));
+        return result;
     }
 
     @Procedure(name = "analysis.network.proximity.centre", signature = "TODO",
