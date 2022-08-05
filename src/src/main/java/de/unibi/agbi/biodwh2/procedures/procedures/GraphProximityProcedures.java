@@ -21,18 +21,21 @@ public final class GraphProximityProcedures implements RegistryContainer {
      * Calculates the average length of all shortest paths between the drug targets
      * t ∈ T and the respective closest disease protein in the disease module
      * @param merged Merged graph containing both drug targets and disease proteins
-     * @param mode Graph mode, i.e. directed or undirected
      * @param labelTarget Label describing the drug target nodes
      * @param labelDiseaseProteins Label describing the disease protein nodes
+     * @param mode Graph mode, i.e. directed or undirected
+     * @param isModified Determines whether the modified or unmodified measure is used: In case of a modified measure, the
+     *                   shortest distance from a node to itself during dijkstra calculation will be set to ∞, else, it
+     *                   will be set to 0
      * @return Result row with proximity measure for drug-disease pair
      */
     @Procedure(name = "analysis.network.proximity.closest", signature = "TODO",
             description = "Calculates the Closest measure for a drug target set and a disease protein set")
-    public static ResultSet closest(final Graph merged, final String labelTarget, final String labelDiseaseProteins, final GraphMode mode) {
+    public static ResultSet closest(final Graph merged, final String labelTarget, final String labelDiseaseProteins, final GraphMode mode, final boolean isModified) {
         float sum = 0;
         for(Node targetNode : merged.getNodes(labelTarget)) {
             // retrieve distances to all protein nodes and add minimum to accumulated sum
-            HashMap<Long, Long> distances = GraphProcedureUtils.dijkstra(merged, targetNode, mode, false, labelDiseaseProteins);
+            HashMap<Long, Long> distances = GraphProcedureUtils.dijkstra(merged, targetNode, mode, isModified, labelDiseaseProteins);
             sum += Collections.min(distances.values());
         }
         sum *= (1 / merged.getNumberOfNodes(labelTarget));
