@@ -25,7 +25,7 @@ public class GraphProcedureUtils {
      * @param labels     Filters the algorithm's output by specific node labels
      * @return A mapping showing all nodes and their shortest paths from source node
      */
-    public static HashMap<Long, Long> dijkstra(final Graph graph, final Node sourceNode, final GraphMode mode,
+    public static HashMap<Long, Long> dijkstra(final Graph graph, final Node sourceNode, final GraphMode mode, final boolean setSelfInfinity,
                                                final String... labels) {
 
         //HashMap<Long, String> paths = new HashMap<>();
@@ -101,6 +101,11 @@ public class GraphProcedureUtils {
         */
 
         // END TEST
+
+        // Set distance from node to itself to "infinity" if desired
+        if(setSelfInfinity) {
+            distances.put(sourceNode.getId(), Long.MAX_VALUE);
+        }
 
         // If labels were provided -> filter distance map
         List<String> labelsList = Arrays.asList(labels);
