@@ -22,6 +22,8 @@ public class GraphProcedureUtils {
      * @param graph      Graph model
      * @param sourceNode Starting node
      * @param mode       Orientation of the graph
+     * @param setSelfInfinity Determines whether the distance from a node to itself will be set to ∞
+ *                            (Please note that this is not the "actual infinity value", but the max value for the Long instance!)
      * @param labels     Filters the algorithm's output by specific node labels
      * @return A mapping showing all nodes and their shortest paths from source node
      */
