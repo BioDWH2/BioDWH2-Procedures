@@ -13,12 +13,9 @@ import de.unibi.agbi.biodwh2.procedures.utils.GraphMode;
 import de.unibi.agbi.biodwh2.procedures.utils.GraphProcedureUtils;
 
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -28,7 +25,7 @@ import java.util.stream.StreamSupport;
 public final class GraphCentralityProcedures implements RegistryContainer {
 
     /**
-     * Calculates the degree of a node, i.e. the number of adjacent neighbors.
+     * Calculates the degree of a node, i.e. all outgoing and incoming edges.
      * @param graph Graph object
      * @param node Source node
      * @return Result set showing the node's ID and its degree
@@ -42,6 +39,36 @@ public final class GraphCentralityProcedures implements RegistryContainer {
         degree = Stream.concat(StreamSupport.stream(outDegrees.spliterator(), false), StreamSupport.stream(inDegrees.spliterator(), false)).count();
         final ResultSet result = new ResultSet("id", "degree");
         result.addRow(new ResultRow(new String[]{"id", "degree"}, new Object[]{id, degree}));
+        return result;
+    }
+
+    /**
+     * Calculates the in degree, i.e. all outgoing edges from a node
+     * @param graph Graph object
+     * @param node Source node
+     * @return Result set containing the in degree and the node's id
+     */
+    @Procedure(name = "analysis.network.centrality.degree.in", signature = "TODO", description = "Calculates the in degree for a node, i.e. all outgoing edges")
+    public static  ResultSet degreeIn(final Graph graph, final Node node) {
+        long id = node.getId();
+        long degreeIn = StreamSupport.stream(graph.findEdges(Edge.TO_ID_FIELD, id).spliterator(), false).count();
+        final ResultSet result = new ResultSet("id", "in degree");
+        result.addRow(new ResultRow(new String[]{"id", "degree"}, new Object[]{id, degreeIn}));
+        return result;
+    }
+
+    /**
+     * Calculates the out degree for a node, i.e. all incoming edges.
+     * @param graph Graph object
+     * @param node Source node
+     * @return Result set containing the out degree and the node's id
+     */
+    @Procedure(name = "analysis.network.centrality.degree.out", signature = "TODO", description = "Calculates the out degree for a node, i.e. all incoming edges")
+    public static  ResultSet degreeOut(final Graph graph, final Node node) {
+        long id = node.getId();
+        long degreeOut = StreamSupport.stream(graph.findEdges(Edge.FROM_ID_FIELD, id).spliterator(), false).count();
+        final ResultSet result = new ResultSet("id", "out degree");
+        result.addRow(new ResultRow(new String[]{"id", "degree"}, new Object[]{id, degreeOut}));
         return result;
     }
 

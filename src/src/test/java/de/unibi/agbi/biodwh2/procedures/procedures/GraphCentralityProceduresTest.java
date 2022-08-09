@@ -66,6 +66,20 @@ class GraphCentralityProceduresTest {
     }
 
     @Test
+    void degreeInTest() {
+        assertTrue((long) GraphCentralityProcedures.degreeIn(graphDisconnected, graphDisconnected.findNode("B")).getRow(0).getValue(1) == 2);
+        assertTrue((long) GraphCentralityProcedures.degreeIn(graphDisconnected, graphDisconnected.findNode("E")).getRow(0).getValue(1) == 2);
+        assertTrue((long) GraphCentralityProcedures.degreeIn(graphDisconnected, graphDisconnected.findNode("G")).getRow(0).getValue(1) == 0);
+    }
+
+    @Test
+    void degreeOutTest() {
+        assertTrue((long) GraphCentralityProcedures.degreeIn(graphDisconnected, graphDisconnected.findNode("B")).getRow(0).getValue(1) == 1);
+        assertTrue((long) GraphCentralityProcedures.degreeIn(graphDisconnected, graphDisconnected.findNode("E")).getRow(0).getValue(1) == 3);
+        assertTrue((long) GraphCentralityProcedures.degreeIn(graphDisconnected, graphDisconnected.findNode("G")).getRow(0).getValue(1) == 0);
+    }
+
+    @Test
     void closenessTest() throws IOException {
         Graph graph = Graph.createTempGraph();
         Node nodeA = graph.addNode("A");
