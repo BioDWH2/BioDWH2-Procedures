@@ -30,17 +30,18 @@ public final class GraphCentralityProcedures implements RegistryContainer {
     /**
      * Calculates the degree of a node, i.e. the number of adjacent neighbors.
      * @param graph Graph object
-     * @param nodeID ID of the source node
+     * @param node Source node
      * @return Result set showing the node's ID and its degree
      */
     @Procedure(name = "analysis.network.centrality.degree", signature = "TODO", description = "Calculates the degree of a graph node")
-    public static ResultSet degree(final Graph graph, final long nodeID) {
+    public static ResultSet degree(final Graph graph, final Node node) {
         long degree = 0;
-        Iterable<Edge> outDegrees = graph.findEdges(Edge.FROM_ID_FIELD, nodeID);
-        Iterable<Edge> inDegrees = graph.findEdges(Edge.TO_ID_FIELD, nodeID);
+        long id = node.getId();
+        Iterable<Edge> outDegrees = graph.findEdges(Edge.FROM_ID_FIELD, id);
+        Iterable<Edge> inDegrees = graph.findEdges(Edge.TO_ID_FIELD, id);
         degree = Stream.concat(StreamSupport.stream(outDegrees.spliterator(), false), StreamSupport.stream(inDegrees.spliterator(), false)).count();
         final ResultSet result = new ResultSet("id", "degree");
-        result.addRow(new ResultRow(new String[]{"id", "degree"}, new Object[]{nodeID, degree}));
+        result.addRow(new ResultRow(new String[]{"id", "degree"}, new Object[]{id, degree}));
         return result;
     }
 

@@ -60,9 +60,9 @@ class GraphCentralityProceduresTest {
 
     @Test
     void degreeTest() {
-        assertTrue((long) GraphCentralityProcedures.degree(graphDisconnected, graphDisconnected.findNode("E").getId()).getRow(0).getValue(1) == 5);
-        assertTrue((long) GraphCentralityProcedures.degree(graphDisconnected, graphDisconnected.findNode("A").getId()).getRow(0).getValue(1) == 1);
-        assertTrue((long) GraphCentralityProcedures.degree(graphDisconnected, graphDisconnected.findNode("G").getId()).getRow(0).getValue(1) == 0);
+        assertTrue((long) GraphCentralityProcedures.degree(graphDisconnected, graphDisconnected.findNode("E")).getRow(0).getValue(1) == 5);
+        assertTrue((long) GraphCentralityProcedures.degree(graphDisconnected, graphDisconnected.findNode("A")).getRow(0).getValue(1) == 1);
+        assertTrue((long) GraphCentralityProcedures.degree(graphDisconnected, graphDisconnected.findNode("G")).getRow(0).getValue(1) == 0);
     }
 
     @Test
