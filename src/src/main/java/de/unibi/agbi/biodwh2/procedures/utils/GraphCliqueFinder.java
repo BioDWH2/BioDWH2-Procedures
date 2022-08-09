@@ -2,14 +2,19 @@ package de.unibi.agbi.biodwh2.procedures.utils;
 
 import de.unibi.agbi.biodwh2.core.model.graph.Graph;
 import de.unibi.agbi.biodwh2.core.model.graph.Node;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 
 import java.util.ArrayList;
 import java.util.Iterator;
 
 /**
- * Finds maximal cliques in a given graph.
+ * Finds cliques in a given graph.
  */
 public class GraphCliqueFinder {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(GraphCliqueFinder.class);
 
     /**
      * All cliques found while performing the clique finding algorithm
@@ -23,6 +28,7 @@ public class GraphCliqueFinder {
     public GraphCliqueFinder(Graph graph) {
         this.cliques = new ArrayList<ArrayList<Node>>();
         this.graph = graph;
+        init(graph);
     }
 
     /**
@@ -88,6 +94,11 @@ public class GraphCliqueFinder {
         return cliquesFound;
     }
 
+    /**
+     * Finds all cliques detected by the Clique finder that contain a specific node
+     * @param nodeID Target node
+     * @return List containing all cliques with target node
+     */
     public ArrayList<ArrayList<Node>> getCliquesForNode(long nodeID) {
         ArrayList<ArrayList<Node>> cliquesForNode = new ArrayList<>();
         for(ArrayList<Node> clique : cliques) {
@@ -98,6 +109,12 @@ public class GraphCliqueFinder {
         return cliquesForNode;
     }
 
+    /**
+     * Check whether a list contains a node (auxiliary function)
+     * @param node Target node
+     * @param list List to check
+     * @return Determines whether the list contains the node
+     */
     private boolean containsNode(Node node, ArrayList<Node> list) {
         for(Node element : list) {
             if(element.getId().equals(node.getId())) {
@@ -107,7 +124,33 @@ public class GraphCliqueFinder {
         return false;
     }
 
-    public ArrayList<ArrayList<Node>> getCliques() {
-        return cliques;
+    /**
+     * Initializes clique detection for a given graph.
+     * @param graph Graph to check
+     */
+    private void init(Graph graph) {
+        LOGGER.info("Initializing clique detection ...");
+        ArrayList<Node> nodesInitial = new ArrayList<>();
+        // add all graph nodes to "remaining" list
+        for(Node node : graph.getNodes()) {
+            nodesInitial.add(node);
+        }
+        // start actual detection
+        findCliques(graph, new ArrayList<>(), nodesInitial, new ArrayList<>(), 0);
+        LOGGER.info(cliques.size() + " clique(s) found");
     }
+
+    /**
+     * Re-initializes the clique detection process for a new graph and clears old data.
+     * @param graph New graph object
+     */
+    public void setGraph(Graph graph) {
+        LOGGER.info("Clearing old clique data ...");
+        cliques = new ArrayList<>();
+        this.graph = graph;
+        init(graph);
+    }
+
+    public ArrayList<ArrayList<Node>> getCliques() { return cliques; }
+
 }

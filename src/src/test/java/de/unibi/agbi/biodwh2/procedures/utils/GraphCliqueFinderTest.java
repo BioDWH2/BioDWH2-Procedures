@@ -32,13 +32,7 @@ class GraphCliqueFinderTest {
         graph.addEdge(nodeD, nodeF, "eDF");
         graph.addEdge(nodeD, nodeE, "eDE");
 
-        ArrayList<Node> nodes = new ArrayList<>();
-        for(Node node : graph.getNodes()) {
-            nodes.add(node);
-        }
-
         GraphCliqueFinder graphCliqueFinder = new GraphCliqueFinder(graph);
-        graphCliqueFinder.findCliques(graph, new ArrayList<>(), nodes, new ArrayList<>(), 0);
 
         for(ArrayList<Node> clique : graphCliqueFinder.getCliques()) {
             System.out.println("################## NEW CLIQUE FOUND ##################");
