@@ -7,10 +7,7 @@ import de.unibi.agbi.biodwh2.procedures.Procedure;
 import de.unibi.agbi.biodwh2.procedures.RegistryContainer;
 import de.unibi.agbi.biodwh2.procedures.ResultRow;
 import de.unibi.agbi.biodwh2.procedures.ResultSet;
-import de.unibi.agbi.biodwh2.procedures.utils.BFSResult;
-import de.unibi.agbi.biodwh2.procedures.utils.GraphCliqueFinder;
-import de.unibi.agbi.biodwh2.procedures.utils.GraphMode;
-import de.unibi.agbi.biodwh2.procedures.utils.GraphProcedureUtils;
+import de.unibi.agbi.biodwh2.procedures.utils.*;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -83,7 +80,8 @@ public final class GraphCentralityProcedures implements RegistryContainer {
     @Procedure(name = "analysis.network.centrality.closeness", signature = "TODO", description = "Calculates the closeness of a graph node")
     public static ResultSet closeness(final Graph graph, final Node node, final GraphMode mode) {
         double closeness = 0;
-        HashMap<Long, Long> distances = GraphProcedureUtils.dijkstra(graph, node, mode, false);
+        ShortestPathFinder shortestPathFinder = new ShortestPathFinder(graph);
+        HashMap<Long, Long> distances = shortestPathFinder.dijkstra(graph, node, mode, false);
         distances.remove(node.getId());
         for(long distance : distances.values()) {
             closeness += distance;
@@ -103,7 +101,8 @@ public final class GraphCentralityProcedures implements RegistryContainer {
      */
     @Procedure(name = "analysis.network.centrality.eccentricity", signature = "TODO", description = "Calculates the eccentricity of a node")
     public static ResultSet eccentricity(final Graph graph, final Node node, final GraphMode mode) {
-        HashMap<Long, Long> distances = GraphProcedureUtils.dijkstra(graph, node, mode, false);
+        ShortestPathFinder shortestPathFinder = new ShortestPathFinder(graph);
+        HashMap<Long, Long> distances = shortestPathFinder.dijkstra(graph, node, mode, false);
         double eccentricity = (1.0 / Collections.max(distances.values()));
         ResultSet result = new ResultSet();
         result.addRow(new ResultRow(new String[]{"id", "eccentricity"}, new Object[]{node.getId(), eccentricity}));
