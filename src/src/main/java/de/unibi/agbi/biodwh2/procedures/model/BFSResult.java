@@ -1,4 +1,4 @@
-package de.unibi.agbi.biodwh2.procedures.utils;
+package de.unibi.agbi.biodwh2.procedures.model;
 
 import de.unibi.agbi.biodwh2.core.model.graph.Edge;
 

@@ -6,8 +6,7 @@ import de.unibi.agbi.biodwh2.procedures.Procedure;
 import de.unibi.agbi.biodwh2.procedures.RegistryContainer;
 import de.unibi.agbi.biodwh2.procedures.ResultRow;
 import de.unibi.agbi.biodwh2.procedures.ResultSet;
-import de.unibi.agbi.biodwh2.procedures.utils.GraphMode;
-import de.unibi.agbi.biodwh2.procedures.utils.GraphProcedureUtils;
+import de.unibi.agbi.biodwh2.procedures.model.GraphMode;
 import de.unibi.agbi.biodwh2.procedures.utils.ShortestPathFinder;
 
 import java.util.Collections;

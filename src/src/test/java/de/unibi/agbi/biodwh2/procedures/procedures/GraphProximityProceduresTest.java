@@ -2,17 +2,10 @@ package de.unibi.agbi.biodwh2.procedures.procedures;
 
 import de.unibi.agbi.biodwh2.core.model.graph.Graph;
 import de.unibi.agbi.biodwh2.core.model.graph.Node;
-import de.unibi.agbi.biodwh2.procedures.ResultRow;
-import de.unibi.agbi.biodwh2.procedures.ResultSet;
-import de.unibi.agbi.biodwh2.procedures.utils.GraphMode;
-import de.unibi.agbi.biodwh2.procedures.utils.GraphProcedureUtils;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 
 import java.io.IOException;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class GraphProximityProceduresTest {

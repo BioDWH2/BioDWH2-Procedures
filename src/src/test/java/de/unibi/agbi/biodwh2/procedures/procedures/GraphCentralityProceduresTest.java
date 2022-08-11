@@ -4,7 +4,7 @@ import de.unibi.agbi.biodwh2.core.model.graph.Edge;
 import de.unibi.agbi.biodwh2.core.model.graph.Graph;
 import de.unibi.agbi.biodwh2.core.model.graph.Node;
 
-import de.unibi.agbi.biodwh2.procedures.utils.GraphMode;
+import de.unibi.agbi.biodwh2.procedures.model.GraphMode;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;

@@ -3,9 +3,11 @@ package de.unibi.agbi.biodwh2.procedures.utils;
 import de.unibi.agbi.biodwh2.core.model.graph.Edge;
 import de.unibi.agbi.biodwh2.core.model.graph.Graph;
 import de.unibi.agbi.biodwh2.core.model.graph.Node;
+import de.unibi.agbi.biodwh2.procedures.model.BFSResult;
+import de.unibi.agbi.biodwh2.procedures.model.DistancePair;
+import de.unibi.agbi.biodwh2.procedures.model.GraphMode;
 
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.util.*;
 import java.util.stream.Collectors;
 

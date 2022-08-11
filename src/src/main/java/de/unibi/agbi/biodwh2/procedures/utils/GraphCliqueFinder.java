@@ -2,6 +2,7 @@ package de.unibi.agbi.biodwh2.procedures.utils;
 
 import de.unibi.agbi.biodwh2.core.model.graph.Graph;
 import de.unibi.agbi.biodwh2.core.model.graph.Node;
+import de.unibi.agbi.biodwh2.procedures.model.GraphMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

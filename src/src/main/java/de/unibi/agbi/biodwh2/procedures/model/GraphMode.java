@@ -1,4 +1,4 @@
-package de.unibi.agbi.biodwh2.procedures.utils;
+package de.unibi.agbi.biodwh2.procedures.model;
 
 /**
  * Represents the orientation of a graph (directed or undirected).

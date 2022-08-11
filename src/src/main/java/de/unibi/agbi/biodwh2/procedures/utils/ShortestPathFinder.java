@@ -2,6 +2,8 @@ package de.unibi.agbi.biodwh2.procedures.utils;
 
 import de.unibi.agbi.biodwh2.core.model.graph.Graph;
 import de.unibi.agbi.biodwh2.core.model.graph.Node;
+import de.unibi.agbi.biodwh2.procedures.model.DistancePair;
+import de.unibi.agbi.biodwh2.procedures.model.GraphMode;
 
 import java.util.*;
 
@@ -9,7 +11,6 @@ import java.util.*;
  * Finds shortest paths in a graph
  *
  * TODO:
- *  - implement settings so they don't need to be supplied to every method (mode, weighted (y/n), initialization value, ...)
  *  - create result containers instead of hash maps (distance mappings, hop nodes, ...)
  */
 public class ShortestPathFinder {
