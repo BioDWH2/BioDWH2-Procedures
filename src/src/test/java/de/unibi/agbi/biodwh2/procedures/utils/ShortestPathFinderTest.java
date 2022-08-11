@@ -37,21 +37,21 @@ class ShortestPathFinderTest {
         final Edge edgeEF = graph.addEdge(nodeE, nodeF, "eEF");
         final Edge edgeEE = graph.addEdge(nodeE, nodeE, "eEE");
 
-        this.shortestPathFinder = new ShortestPathFinder(graph);
+        this.shortestPathFinder = new ShortestPathFinder(graph, GraphMode.UNDIRECTED);
     }
 
     @Test
     void dijkstraSourceTargetTest() {
         Node source = graph.findNode("A");
         Node target = graph.findNode("D");
-        HashMap<Long, Long> distances = shortestPathFinder.dijkstra(graph, source, target, GraphMode.UNDIRECTED);
+        HashMap<Long, Long> distances = shortestPathFinder.dijkstra(graph, source, target);
         assertTrue(distances.size() == 1);
         assertTrue(distances.get(target.getId()) == 2);
     }
 
     @Test
     void dijkstraMultiTargetTestWithSelfToZero() {
-        HashMap<Long, Long> distances = shortestPathFinder.dijkstra(graph, graph.findNode("A"), GraphMode.DIRECTED, false);
+        HashMap<Long, Long> distances = shortestPathFinder.dijkstra(graph, graph.findNode("A"), false);
         assertTrue(distances.get(graph.findNode("A").getId()) == 0);
         assertTrue(distances.get(graph.findNode("D").getId()) == 2);
         assertTrue(distances.get(graph.findNode("F").getId()) == 3);
@@ -60,7 +60,7 @@ class ShortestPathFinderTest {
 
     @Test
     void dijkstraMultiTargetTestWithSelfToInfinity() {
-        HashMap<Long, Long> distances = shortestPathFinder.dijkstra(graph, graph.findNode("A"), GraphMode.DIRECTED, true);
+        HashMap<Long, Long> distances = shortestPathFinder.dijkstra(graph, graph.findNode("A"), true);
         assertTrue(distances.get(graph.findNode("A").getId()) == Long.MAX_VALUE);
         assertTrue(distances.get(graph.findNode("D").getId()) == 2);
         assertTrue(distances.get(graph.findNode("F").getId()) == 3);

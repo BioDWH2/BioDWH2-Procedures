@@ -16,21 +16,28 @@ public class ShortestPathFinder {
 
     private Graph graph;
     private HashMap<Long, Long> shortestPaths;
+    private GraphMode mode;
+    private boolean useEdgeWeights;
 
-    public ShortestPathFinder(Graph graph) {
+    public ShortestPathFinder(Graph graph, GraphMode mode, boolean useEdgeWeights) {
         this.graph = graph;
+        this.mode = mode;
+        this.useEdgeWeights = useEdgeWeights;
         this.shortestPaths = new HashMap<>();
     }
+
+    public ShortestPathFinder(Graph graph, GraphMode mode) { this(graph, mode, false); }
+
+    public ShortestPathFinder(Graph graph) { this(graph, GraphMode.UNDIRECTED, false); };
 
     /**
      * Computes the shortest path from a given source to a given target using Dijkstra's algorithm.
      * @param graph The graph containing source and target node
      * @param source The source node
      * @param target The target node
-     * @param mode Direction of the graph (directed or undirected)
      * @return Maps the path length from source to target
      */
-    public HashMap<Long, Long> dijkstra(final Graph graph, final Node source, final Node target, final GraphMode mode) {
+    public HashMap<Long, Long> dijkstra(final Graph graph, final Node source, final Node target) {
 
         HashMap<Long, Long> distances = new HashMap<>();
         for (Node node : graph.getNodes()) {
@@ -71,13 +78,12 @@ public class ShortestPathFinder {
      * algorithm.
      * @param graph      Graph model
      * @param sourceNode Starting node
-     * @param mode       Orientation of the graph
      * @param setSelfInfinity Determines whether the distance from a node to itself will be set to ∞
      *                            (Please note that this is not the "actual infinity value", but the max value for the Long instance!)
      * @param labels     Filters the algorithm's output by specific node labels
      * @return A mapping showing all nodes and their shortest paths from source node
      */
-    public static HashMap<Long, Long> dijkstra(final Graph graph, final Node sourceNode, final GraphMode mode, final boolean setSelfInfinity,
+    public HashMap<Long, Long> dijkstra(final Graph graph, final Node sourceNode, final boolean setSelfInfinity,
                                                final String... labels) {
 
         // init distance mapping and node queue

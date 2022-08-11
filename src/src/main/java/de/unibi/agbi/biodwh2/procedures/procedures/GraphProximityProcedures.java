@@ -36,8 +36,8 @@ public final class GraphProximityProcedures implements RegistryContainer {
         float sum = 0;
         for(Node targetNode : merged.getNodes(labelTarget)) {
             // retrieve distances to all protein nodes and add minimum to accumulated sum
-            ShortestPathFinder shortestPathFinder = new ShortestPathFinder(merged);
-            HashMap<Long, Long> distances = shortestPathFinder.dijkstra(merged, targetNode, mode, isModified, labelDiseaseProteins);
+            ShortestPathFinder shortestPathFinder = new ShortestPathFinder(merged, mode);
+            HashMap<Long, Long> distances = shortestPathFinder.dijkstra(merged, targetNode, isModified, labelDiseaseProteins);
             sum += Collections.min(distances.values());
         }
         sum *= (1 / merged.getNumberOfNodes(labelTarget));
@@ -61,8 +61,8 @@ public final class GraphProximityProcedures implements RegistryContainer {
         for(Node targetNode : merged.getNodes(labelTarget)) {
             // calculate all shortest paths to all disease proteins and add them up ...
             float sumShortestPaths = 0;
-            ShortestPathFinder shortestPathFinder = new ShortestPathFinder(merged);
-            HashMap<Long, Long> distances = shortestPathFinder.dijkstra(merged, targetNode, mode, false, labelDiseaseProteins);
+            ShortestPathFinder shortestPathFinder = new ShortestPathFinder(merged, mode);
+            HashMap<Long, Long> distances = shortestPathFinder.dijkstra(merged, targetNode,false, labelDiseaseProteins);
             for(Long distance : distances.values()) {
                 sumShortestPaths += distance;
             }
@@ -89,8 +89,8 @@ public final class GraphProximityProcedures implements RegistryContainer {
         float sum = 0;
         for(Node drugTarget : merged.getNodes(labelTargets)) {
             double sumKernel = 0;
-            ShortestPathFinder shortestPathFinder = new ShortestPathFinder(merged);
-            HashMap<Long, Long> distances = shortestPathFinder.dijkstra(merged, drugTarget, mode, false, labelDiseaseProteins);
+            ShortestPathFinder shortestPathFinder = new ShortestPathFinder(merged, mode);
+            HashMap<Long, Long> distances = shortestPathFinder.dijkstra(merged, drugTarget, false, labelDiseaseProteins);
             // add up all distances with exponential penalty ...
             for(Long distance : distances.values()) {
                 sumKernel += (Math.exp(- distance + 1)) / merged.getNumberOfNodes(labelDiseaseProteins);
