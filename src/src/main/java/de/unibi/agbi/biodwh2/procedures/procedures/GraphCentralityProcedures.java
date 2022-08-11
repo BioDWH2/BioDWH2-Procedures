@@ -156,10 +156,10 @@ public final class GraphCentralityProcedures implements RegistryContainer {
         GraphCliqueFinder graphCliqueFinder = new GraphCliqueFinder(graph);
         ArrayList<Node> nodes = new ArrayList<>();
         graph.getNodes().forEach(n -> nodes.add(n));
-        graphCliqueFinder.findCliques(graph, new ArrayList<>(), nodes, new ArrayList<>(), 0);
 
         // obtain all cliques containing target node
-        ArrayList<ArrayList<Node>> cliquesForNode = graphCliqueFinder.getCliquesForNode(node.getId());
+        ArrayList<ArrayList<Node>> cliquesForNode = graphCliqueFinder.getCliquesForNode(node);
+        System.out.println("cliques containing node: " + cliquesForNode.size());
 
         // calculate score
         int mcc = 0;

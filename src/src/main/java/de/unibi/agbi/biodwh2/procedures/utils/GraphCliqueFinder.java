@@ -40,7 +40,7 @@ public class GraphCliqueFinder {
      * @param depth Recursion depth
      * @return
      */
-    public int findCliques(final Graph graph, ArrayList<Node> potentialClique, ArrayList<Node> remaining, ArrayList<Node> skip, int depth) {
+    private int findCliques(final Graph graph, ArrayList<Node> potentialClique, ArrayList<Node> remaining, ArrayList<Node> skip, int depth) {
 
         // all nodes have been processed -> new clique has been found
         if(remaining.isEmpty() && skip.isEmpty()) {
@@ -96,13 +96,14 @@ public class GraphCliqueFinder {
 
     /**
      * Finds all cliques detected by the Clique finder that contain a specific node
-     * @param nodeID Target node
+     * @param node Target node
      * @return List containing all cliques with target node
      */
-    public ArrayList<ArrayList<Node>> getCliquesForNode(long nodeID) {
+    public ArrayList<ArrayList<Node>> getCliquesForNode(Node node) {
         ArrayList<ArrayList<Node>> cliquesForNode = new ArrayList<>();
         for(ArrayList<Node> clique : cliques) {
-            if(containsNode(graph.getNode(nodeID), clique)) {
+            System.out.println("size: " + clique.size());
+            if(containsNode(node, clique)) {
                 cliquesForNode.add(clique);
             }
         }

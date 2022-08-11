@@ -151,8 +151,6 @@ class GraphCentralityProceduresTest {
         assertTrue((double) GraphCentralityProcedures.densityOfMaximumNeighborhoodComponent(graph, graph.findNode("5"), GraphMode.UNDIRECTED, 1.7).getRow(0).getValue(1) == 0.3077861033362291);
     }
 
-    // TODO: check!
-    /*
     @Test
     void maximalCliqueCentralityTest() throws IOException {
         Graph graph = Graph.createTempGraph();
@@ -174,8 +172,6 @@ class GraphCentralityProceduresTest {
         graph.addEdge(nodeD, nodeF, "eDF");
         graph.addEdge(nodeD, nodeE, "eDE");
 
-        System.out.println((int) GraphCentralityProcedures.maximalCliqueCentrality(graph, graph.findNode("A")).getRow(0).getValue(1));
         assertTrue((int) GraphCentralityProcedures.maximalCliqueCentrality(graph, graph.findNode("A")).getRow(0).getValue(1) == 3);
-
-    }*/
+    }
 }
