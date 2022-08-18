@@ -76,7 +76,7 @@ public final class GraphProximityProcedures implements RegistryContainer {
     }
 
     /**
-     * Calculates the Kernel proximity measure by weighting long shortest paths with a penalty.
+     * Calculates the Kernel proximity measure by weighting longer shortest paths with a penalty.
      * @param merged Merged graph containing both drug targets and disease proteins
      * @param labelTargets Label describing the drug target nodes
      * @param labelDiseaseProteins Label describing the disease protein nodes
@@ -105,7 +105,8 @@ public final class GraphProximityProcedures implements RegistryContainer {
     }
 
     /**
-     * Calculates the separation proximity measure between drug targets T and disease proteins P.
+     * Calculates the separation proximity measure between drug targets T and disease proteins P by computing the
+     * shortest path length between all drug targets and the topological center of the disease module.
      * @param merged Merged graph containing both drug targets and disease proteins
      * @param labelTargets Label describing the drug target nodes
      * @param labelDiseaseProteins Label describing the disease protein nodes
@@ -166,34 +167,4 @@ public final class GraphProximityProcedures implements RegistryContainer {
         return result;
     }
 
-
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
