@@ -167,23 +167,12 @@ public final class GraphCentralityProcedures implements RegistryContainer {
         // calculate score
         int mcc = 0;
         for(ArrayList<Node> clique : cliquesForNode) {
-            mcc += factorial(clique.size() - 1);
+            mcc += MathUtils.factorial(clique.size() - 1);
         }
 
         ResultSet result = new ResultSet();
         result.addRow(new ResultRow(new String[]{"id", "mcc"}, new Object[]{node.getId(), mcc}));
         return result;
-    }
-
-    /**
-    * TODO: move this somewhere else ...
-     */
-    private static int factorial(int number) {
-        if(number == 0) {
-            return 1;
-        } else {
-            return number * factorial(number - 1);
-        }
     }
 
 }
