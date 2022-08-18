@@ -41,23 +41,6 @@ class GraphProcedureUtilsTest {
     }
 
     @Test
-    void dijkstraTestWithSelfToZero() {
-        HashMap<Long, Long> distances = GraphProcedureUtils.dijkstra(graph, graph.findNode("A"), GraphMode.DIRECTED, false);
-        assertTrue(distances.get(graph.findNode("A").getId()) == 0);
-        assertTrue(distances.get(graph.findNode("D").getId()) == 2);
-        assertTrue(distances.get(graph.findNode("F").getId()) == 3);
-        assertTrue(distances.get(graph.findNode("G").getId()) == Long.MAX_VALUE);
-    }
-    @Test
-    void dijkstraTestWithSelfToInfinity() {
-        HashMap<Long, Long> distances = GraphProcedureUtils.dijkstra(graph, graph.findNode("A"), GraphMode.DIRECTED, true);
-        assertTrue(distances.get(graph.findNode("A").getId()) == Long.MAX_VALUE);
-        assertTrue(distances.get(graph.findNode("D").getId()) == 2);
-        assertTrue(distances.get(graph.findNode("F").getId()) == 3);
-        assertTrue(distances.get(graph.findNode("G").getId()) == Long.MAX_VALUE);
-    }
-
-    @Test
     void breadthFirstSearchTest() {
         BFSResult result = GraphProcedureUtils.breadthFirstSearch(graph, graph.findNode("A"), GraphMode.UNDIRECTED);
         assertTrue(Collections.frequency(result.getVisitedNodes().values(), true) == 6);

@@ -17,113 +17,6 @@ import java.util.stream.Collectors;
 public class GraphProcedureUtils {
 
     /**
-     * Finds the lengths of all shortest paths from a source node to all other nodes in a graph using Dijkstra's
-     * algorithm.
-     * <p>
-     * TODO: implement possibility to choose weights other than 1 (in case of actual weighted graph)
-     * @param graph      Graph model
-     * @param sourceNode Starting node
-     * @param mode       Orientation of the graph
-     * @param setSelfInfinity Determines whether the distance from a node to itself will be set to ∞
- *                            (Please note that this is not the "actual infinity value", but the max value for the Long instance!)
-     * @param labels     Filters the algorithm's output by specific node labels
-     * @return A mapping showing all nodes and their shortest paths from source node
-     */
-    public static HashMap<Long, Long> dijkstra(final Graph graph, final Node sourceNode, final GraphMode mode, final boolean setSelfInfinity,
-                                               final String... labels) {
-
-        //HashMap<Long, String> paths = new HashMap<>();
-        ArrayList<Edge> edges = new ArrayList<>();
-
-        // init distance mapping and node queue
-        HashMap<Long, Long> distances = new HashMap<>();
-        for (Node node : graph.getNodes()) {
-            if (node.getId() != sourceNode.getId()) {
-                distances.put(node.getId(), Long.MAX_VALUE);
-            }
-        }
-        distances.put(sourceNode.getId(), Long.valueOf(0));
-        PriorityQueue<DistancePair> queue = new PriorityQueue<>();
-        queue.add(new DistancePair(sourceNode, 0));
-
-        while (!queue.isEmpty()) {
-
-            // remove head of queue and set as current node
-            DistancePair current = queue.poll();
-            Node currentNode = current.getNode();
-
-            long currentDistance = current.getDistance();
-            ArrayList<Node> neighbors = GraphProcedureUtils.getNeighbors(graph, currentNode, mode);
-
-            // For each adjacent neighbor: Update distance if required
-            for (Node neighbor : neighbors) {
-                long neighborID = neighbor.getId();
-                if (distances.get(neighborID) > (currentDistance + 1)) {
-                    distances.put(neighborID, currentDistance + 1);
-                    queue.add(new DistancePair(neighbor, distances.get(neighborID)));
-
-                    // TEST
-                   /* Edge edge = graph.findEdge(Edge.FROM_ID_FIELD, currentNode.getId(), Edge.TO_ID_FIELD, neighborID);
-                    if (edge != null) {
-                        edges.add(edge);
-                    }
-                    if (mode.equals(GraphMode.UNDIRECTED)) {
-                        Edge edge2 = graph.findEdge(Edge.TO_ID_FIELD, currentNode.getId(), Edge.FROM_ID_FIELD,
-                                                    neighborID);
-                        if (edge2 != null) {
-                            edges.add(edge2);
-                        }
-                    }
-
-                    System.out.println(currentNode.getLabel() + " - " + neighbor.getLabel());
-                    paths.put(neighborID, currentNode.getLabel());*/
-                    // END TEST
-
-                }
-            }
-        }
-
-        // TEST
-       /* for (Map.Entry<Long, String> entry : paths.entrySet()) {
-            Long id = entry.getKey();
-            System.out.println("---- PRED. TO " + graph.getNode(id).getLabel() + " ----");
-            System.out.println(entry.getValue());
-
-        }
-
-        HashMap<Long, ArrayList<String>> p = new HashMap<>();
-        for(Long id : paths.keySet()) {
-            // add node itself
-            ArrayList<String> l = new ArrayList<>();
-            l.add(graph.getNode(id).getLabel());
-            p.put(id, l);
-        }
-
-        for (Edge edge : edges) {
-            System.out.println(edge.getLabel());
-        }
-        */
-
-        // END TEST
-
-        // Set distance from node to itself to "infinity" if desired
-        if(setSelfInfinity) {
-            distances.put(sourceNode.getId(), Long.MAX_VALUE);
-        }
-
-        // If labels were provided -> filter distance map
-        List<String> labelsList = Arrays.asList(labels);
-        if(!labelsList.isEmpty()) {
-            HashMap<Long, Long> filtered = distances.entrySet().stream()
-                                                    .filter(entry -> labelsList.contains(graph.getNode(entry.getKey()).getLabel()))
-                                                    .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (prev, next) -> next, HashMap::new));
-            return filtered;
-        } else {
-            return distances;
-        }
-    }
-
-    /**
      * Performs a breadth-first search in the course of which all connected nodes starting from a single source are
      * marked as visited.
      * <p>
@@ -315,5 +208,4 @@ public class GraphProcedureUtils {
         }
         return results;
     }
-
 }
