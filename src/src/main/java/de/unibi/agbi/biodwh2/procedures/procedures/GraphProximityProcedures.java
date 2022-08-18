@@ -11,6 +11,7 @@ import de.unibi.agbi.biodwh2.procedures.utils.ShortestPathFinder;
 
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Contains procedures for network proximity analysis.
@@ -132,11 +133,67 @@ public final class GraphProximityProcedures implements RegistryContainer {
         return result;
     }
 
+    /**
+     * Calculates the centre measure between drug targets T and disease proteins P.
+     * @param merged Merged graph containing both drug targets and disease proteins
+     * @param labelTargets Label describing the drug target nodes
+     * @param labelDiseaseProteins Label describing the disease protein nodes
+     * @param mode Graph mode, i.e. directed or undirected
+     * @return
+     */
     @Procedure(name = "analysis.network.proximity.centre", signature = "TODO",
             description = "Calculates the Centre measure for a drug target set and a disease protein set")
-    public static ResultSet centre(Graph drugTargets, Graph diseaseProteins) {
-        throw new UnsupportedOperationException(Thread.currentThread().getStackTrace()[1].getMethodName() +": Not yet implemented!");
+    public static ResultSet centre(final Graph merged, final String labelTargets, final String labelDiseaseProteins, final GraphMode mode) {
+
+        // calculate the topological center of disease module, i.e. the node with the largest closeness centrality in the module
+        HashMap<Long, Double> closenessForProtein = new HashMap<>();
+        for(Node node : merged.getNodes(labelDiseaseProteins)) {
+            ResultSet result = GraphCentralityProcedures.closeness(merged, node, GraphMode.UNDIRECTED, labelDiseaseProteins);
+            closenessForProtein.put(node.getId(), (double) result.getRow(0).getValue(1));
+        }
+        Node centre = merged.getNode(Collections.max(closenessForProtein.entrySet(), Map.Entry.comparingByValue()).getKey());
+
+        // add up all distances from nodes in T to centre node and normalize
+        double sum = 0;
+        ShortestPathFinder shortestPathFinder = new ShortestPathFinder(merged, mode);
+        for(Node drugTarget : merged.getNodes(labelTargets)) {
+            sum += shortestPathFinder.dijkstra(merged, centre, drugTarget).get(drugTarget.getId());
+        }
+        sum *= 1 / merged.getNumberOfNodes(labelTargets);
+
+        ResultSet result = new ResultSet("d_cc");
+        result.addRow(new ResultRow(new String[]{"d_cc"}, new Object[]{sum}));
+        return result;
     }
 
 
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
