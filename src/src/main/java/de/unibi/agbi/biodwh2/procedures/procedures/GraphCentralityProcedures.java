@@ -77,13 +77,14 @@ public final class GraphCentralityProcedures implements RegistryContainer {
      * @param graph The graph in which the node resides
      * @param node Source node
      * @param mode Orientation of the graph
+     * @param labels Restricts the closeness calculation to nodes with certain labels (optional parameter)
      * @return Result set showing the node's ID and its closeness value
      */
     @Procedure(name = "analysis.network.centrality.closeness", signature = "TODO", description = "Calculates the closeness of a graph node")
-    public static ResultSet closeness(final Graph graph, final Node node, final GraphMode mode) {
+    public static ResultSet closeness(final Graph graph, final Node node, final GraphMode mode, final String... labels) {
         double closeness = 0;
         ShortestPathFinder shortestPathFinder = new ShortestPathFinder(graph, mode);
-        HashMap<Long, Long> distances = shortestPathFinder.dijkstra(graph, node, false);
+        HashMap<Long, Long> distances = shortestPathFinder.dijkstra(graph, node, false, labels);
         distances.remove(node.getId());
         for(long distance : distances.values()) {
             closeness += distance;

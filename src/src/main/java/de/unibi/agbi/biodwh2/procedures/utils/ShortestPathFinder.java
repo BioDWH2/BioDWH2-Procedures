@@ -81,7 +81,7 @@ public class ShortestPathFinder {
      * @param sourceNode Starting node
      * @param setSelfInfinity Determines whether the distance from a node to itself will be set to ∞
      *                            (Please note that this is not the "actual infinity value", but the max value for the Long instance!)
-     * @param labels     Filters the algorithm's output by specific node labels
+     * @param labels     Filters the algorithm's output by specific node labels (optional parameter)
      * @return A mapping showing all nodes and their shortest paths from source node
      */
     public HashMap<Long, Long> dijkstra(final Graph graph, final Node sourceNode, final boolean setSelfInfinity,
