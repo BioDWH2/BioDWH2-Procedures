@@ -1,7 +1,7 @@
 package de.unibi.agbi.biodwh2.procedures;
 
 import de.unibi.agbi.biodwh2.core.Factory;
-import de.unibi.agbi.biodwh2.core.model.graph.Graph;
+import de.unibi.agbi.biodwh2.core.model.graph.BaseGraph;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,7 +59,7 @@ public final class Registry {
             }
         }
         LOGGER.info("Registry:  " + container.size() + " containers, " + procedures.size() + " procedures, " +
-                    functions.size() + " functions");
+                functions.size() + " functions");
     }
 
     public static synchronized Registry getInstance() {
@@ -68,7 +68,7 @@ public final class Registry {
         return instance;
     }
 
-    public ResultSet callProcedure(final String name, final Graph graph, Object... arguments) {
+    public ResultSet callProcedure(final String name, final BaseGraph graph, Object... arguments) {
         final ProcedureDefinition procedureDefinition = procedures.get(name);
         if (procedureDefinition != null) {
             try {
@@ -86,7 +86,7 @@ public final class Registry {
         return null;
     }
 
-    public ResultSet callFunction(final String name, final Graph graph, Object... arguments) {
+    public ResultSet callFunction(final String name, final BaseGraph graph, Object... arguments) {
         final FunctionDefinition functionDefinition = functions.get(name);
         if (functionDefinition != null) {
             try {

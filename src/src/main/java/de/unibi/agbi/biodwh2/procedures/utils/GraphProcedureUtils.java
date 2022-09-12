@@ -1,5 +1,6 @@
 package de.unibi.agbi.biodwh2.procedures.utils;
 
+import de.unibi.agbi.biodwh2.core.model.graph.BaseGraph;
 import de.unibi.agbi.biodwh2.core.model.graph.Edge;
 import de.unibi.agbi.biodwh2.core.model.graph.Graph;
 import de.unibi.agbi.biodwh2.core.model.graph.Node;
@@ -25,7 +26,7 @@ public class GraphProcedureUtils {
      * @param graph     The graph in which the source node resides
      * @param nodeStart Node from which the search is initiated
      */
-    public static BFSResult breadthFirstSearch(final Graph graph, Node nodeStart, final GraphMode mode) {
+    public static BFSResult breadthFirstSearch(final BaseGraph graph, Node nodeStart, final GraphMode mode) {
 
         PriorityQueue<Long> queue = new PriorityQueue<>();
         ArrayList<Edge> paths = new ArrayList<>();
@@ -81,7 +82,7 @@ public class GraphProcedureUtils {
      * @param mode  Orientation of the graph, determines which edges are considered
      * @return List with all adjacent neighbors for the node
      */
-    public static ArrayList<Node> getNeighbors(Graph graph, Node node, GraphMode mode) {
+    public static ArrayList<Node> getNeighbors(final BaseGraph graph, Node node, GraphMode mode) {
         ArrayList<Node> adjacencyList = new ArrayList<>();
         Iterable<Edge> outDegrees = graph.findEdges(Edge.FROM_ID_FIELD, node.getId());
         for (Edge edge : outDegrees) {
@@ -110,7 +111,7 @@ public class GraphProcedureUtils {
      * @param mode  Orientation of the graph, determines which nodes and edges are included
      * @return A subgraph containing the open neighborhood
      */
-    public static Graph getOpenNeighborhoodAsSubgraph(Graph graph, Node node, final GraphMode mode) throws IOException {
+    public static BaseGraph getOpenNeighborhoodAsSubgraph(final BaseGraph graph, Node node, final GraphMode mode) throws IOException {
 
         Graph openNeighborhoodSubgraph = Graph.createTempGraph();
 
@@ -154,11 +155,11 @@ public class GraphProcedureUtils {
      * @param mode  Orientation of the graph
      * @return Largest connected component in the open neighborhood of the node
      */
-    public static BFSResult getMaximumConnectedComponent(final Graph graph, final Node node,
+    public static BFSResult getMaximumConnectedComponent(final BaseGraph graph, final Node node,
                                                          final GraphMode mode) throws IOException {
 
         // calculate open neighborhood (i.e. neighborhood not containing node)
-        Graph openNeighborHood = GraphProcedureUtils.getOpenNeighborhoodAsSubgraph(graph, node, mode);
+        BaseGraph openNeighborHood = GraphProcedureUtils.getOpenNeighborhoodAsSubgraph(graph, node, mode);
         ArrayList<BFSResult> neighborHoodComponents = GraphProcedureUtils.findComponentsUndirected(openNeighborHood);
 
         int size = 0;
@@ -181,7 +182,7 @@ public class GraphProcedureUtils {
      * @param graph Graph that is supposed to be divided into components
      * @return List of all BFS results containing the node IDs and edges of the components
      */
-    public static ArrayList<BFSResult> findComponentsUndirected(final Graph graph) {
+    public static ArrayList<BFSResult> findComponentsUndirected(final BaseGraph graph) {
 
         ArrayList<BFSResult> results = new ArrayList<>();
         HashMap<Long, Boolean> nodesVisitedInfo = new HashMap<>();

@@ -1,5 +1,6 @@
 package de.unibi.agbi.biodwh2.procedures.utils;
 
+import de.unibi.agbi.biodwh2.core.model.graph.BaseGraph;
 import de.unibi.agbi.biodwh2.core.model.graph.Edge;
 import de.unibi.agbi.biodwh2.core.model.graph.Graph;
 import de.unibi.agbi.biodwh2.core.model.graph.Node;
@@ -48,7 +49,7 @@ class GraphProcedureUtilsTest {
 
     @Test
     void getOpenNeighborhoodAsSubgraphTest() throws IOException {
-        Graph openNeighborHoodA = GraphProcedureUtils.getOpenNeighborhoodAsSubgraph(graph, graph.findNode("B"), GraphMode.UNDIRECTED);
+        BaseGraph openNeighborHoodA = GraphProcedureUtils.getOpenNeighborhoodAsSubgraph(graph, graph.findNode("B"), GraphMode.UNDIRECTED);
         String[] targetNodeLabels = new String[]{"A", "D", "C"};
         assertTrue(openNeighborHoodA.getNumberOfNodes() == 3);
         assertTrue(targetNodeLabels.length == openNeighborHoodA.getNodeLabels().length);

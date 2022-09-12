@@ -1,6 +1,6 @@
 package de.unibi.agbi.biodwh2.procedures.procedures;
 
-import de.unibi.agbi.biodwh2.core.model.graph.Graph;
+import de.unibi.agbi.biodwh2.core.model.graph.BaseGraph;
 import de.unibi.agbi.biodwh2.core.model.graph.Node;
 import de.unibi.agbi.biodwh2.procedures.Procedure;
 import de.unibi.agbi.biodwh2.procedures.RegistryContainer;
@@ -32,7 +32,7 @@ public final class GraphProximityProcedures implements RegistryContainer {
      */
     @Procedure(name = "analysis.network.proximity.closest", signature = "TODO",
             description = "Calculates the Closest measure for a drug target set and a disease protein set")
-    public static ResultSet closest(final Graph merged, final String labelTarget, final String labelDiseaseProteins, final GraphMode mode, final boolean isModified) {
+    public static ResultSet closest(final BaseGraph merged, final String labelTarget, final String labelDiseaseProteins, final GraphMode mode, final boolean isModified) {
         float sum = 0;
         for(Node targetNode : merged.getNodes(labelTarget)) {
             // retrieve distances to all protein nodes and add minimum to accumulated sum
@@ -56,7 +56,7 @@ public final class GraphProximityProcedures implements RegistryContainer {
      */
     @Procedure(name = "analysis.network.proximity.shortest", signature = "TODO",
             description = "Calculates the Shortest measure for a drug target set and a disease protein set")
-    public static ResultSet shortest(final Graph merged, final String labelTarget, final String labelDiseaseProteins, final GraphMode mode) {
+    public static ResultSet shortest(final BaseGraph merged, final String labelTarget, final String labelDiseaseProteins, final GraphMode mode) {
         float sum = 0;
         for(Node targetNode : merged.getNodes(labelTarget)) {
             // calculate all shortest paths to all disease proteins and add them up ...
@@ -85,7 +85,7 @@ public final class GraphProximityProcedures implements RegistryContainer {
      */
     @Procedure(name = "analysis.network.proximity.kernel", signature = "TODO",
             description = "Calculates the Kernel measure for a drug target set and a disease protein set")
-    public static ResultSet kernel(final Graph merged, final String labelTargets, final String labelDiseaseProteins, final GraphMode mode) {
+    public static ResultSet kernel(final BaseGraph merged, final String labelTargets, final String labelDiseaseProteins, final GraphMode mode) {
         float sum = 0;
         for(Node drugTarget : merged.getNodes(labelTargets)) {
             double sumKernel = 0;
@@ -115,7 +115,7 @@ public final class GraphProximityProcedures implements RegistryContainer {
      */
     @Procedure(name = "analysis.network.proximity.separation", signature = "TODO",
             description = "Calculates the Separation measure for a drug target set and a disease protein set")
-    public static ResultSet separation(final Graph merged, final String labelTargets, final String labelDiseaseProteins, final GraphMode mode) {
+    public static ResultSet separation(final BaseGraph merged, final String labelTargets, final String labelDiseaseProteins, final GraphMode mode) {
 
         // calculate modified closest measure for targets and disease proteins (right-hand side of term)
         float modifiedTargets = (float) GraphProximityProcedures.closest(merged, labelTargets, labelTargets, mode, true).getRow(0).getValue(1);
@@ -144,7 +144,7 @@ public final class GraphProximityProcedures implements RegistryContainer {
      */
     @Procedure(name = "analysis.network.proximity.centre", signature = "TODO",
             description = "Calculates the Centre measure for a drug target set and a disease protein set")
-    public static ResultSet centre(final Graph merged, final String labelTargets, final String labelDiseaseProteins, final GraphMode mode) {
+    public static ResultSet centre(final BaseGraph merged, final String labelTargets, final String labelDiseaseProteins, final GraphMode mode) {
 
         // calculate the topological center of disease module, i.e. the node with the largest closeness centrality in the module
         HashMap<Long, Double> closenessForProtein = new HashMap<>();

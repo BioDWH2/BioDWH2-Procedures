@@ -1,5 +1,6 @@
 package de.unibi.agbi.biodwh2.procedures.utils;
 
+import de.unibi.agbi.biodwh2.core.model.graph.BaseGraph;
 import de.unibi.agbi.biodwh2.core.model.graph.Graph;
 import de.unibi.agbi.biodwh2.core.model.graph.Node;
 import de.unibi.agbi.biodwh2.procedures.model.GraphMode;
@@ -24,9 +25,9 @@ public class GraphCliqueFinder {
     /**
      * Target graph
      */
-    private Graph graph;
+    private BaseGraph graph;
 
-    public GraphCliqueFinder(Graph graph) {
+    public GraphCliqueFinder(final BaseGraph graph) {
         this.cliques = new ArrayList<ArrayList<Node>>();
         this.graph = graph;
         init(graph);
@@ -41,7 +42,7 @@ public class GraphCliqueFinder {
      * @param depth Recursion depth
      * @return
      */
-    private int findCliques(final Graph graph, ArrayList<Node> potentialClique, ArrayList<Node> remaining, ArrayList<Node> skip, int depth) {
+    private int findCliques(final BaseGraph graph, ArrayList<Node> potentialClique, ArrayList<Node> remaining, ArrayList<Node> skip, int depth) {
 
         // all nodes have been processed -> new clique has been found
         if(remaining.isEmpty() && skip.isEmpty()) {
@@ -130,7 +131,7 @@ public class GraphCliqueFinder {
      * Initializes clique detection for a given graph.
      * @param graph Graph to check
      */
-    private void init(Graph graph) {
+    private void init(final BaseGraph graph) {
         LOGGER.info("Initializing clique detection ...");
         ArrayList<Node> nodesInitial = new ArrayList<>();
         // add all graph nodes to "remaining" list
@@ -146,7 +147,7 @@ public class GraphCliqueFinder {
      * Re-initializes the clique detection process for a new graph and clears old data.
      * @param graph New graph object
      */
-    public void setGraph(Graph graph) {
+    public void setGraph(final BaseGraph graph) {
         LOGGER.info("Clearing old clique data ...");
         cliques = new ArrayList<>();
         this.graph = graph;
