@@ -12,9 +12,7 @@ import de.unibi.agbi.biodwh2.procedures.model.GraphMode;
 import de.unibi.agbi.biodwh2.procedures.utils.*;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
+import java.util.*;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -83,8 +81,8 @@ public final class GraphCentralityProcedures implements RegistryContainer {
     @Procedure(name = "analysis.network.centrality.closeness", signature = "TODO", description = "Calculates the closeness of a graph node")
     public static ResultSet closeness(final BaseGraph graph, final Node node, final GraphMode mode, final String... labels) {
         double closeness = 0;
-        ShortestPathFinder shortestPathFinder = new ShortestPathFinder(graph, mode);
-        HashMap<Long, Long> distances = shortestPathFinder.dijkstra(graph, node, false, labels);
+        final ShortestPathFinder shortestPathFinder = new ShortestPathFinder(graph, mode);
+        final Map<Long, Long> distances = shortestPathFinder.dijkstra(node.getId(), false, labels);
         distances.remove(node.getId());
         for(long distance : distances.values()) {
             closeness += distance;
@@ -104,8 +102,8 @@ public final class GraphCentralityProcedures implements RegistryContainer {
      */
     @Procedure(name = "analysis.network.centrality.eccentricity", signature = "TODO", description = "Calculates the eccentricity of a node")
     public static ResultSet eccentricity(final BaseGraph graph, final Node node, final GraphMode mode) {
-        ShortestPathFinder shortestPathFinder = new ShortestPathFinder(graph, mode);
-        HashMap<Long, Long> distances = shortestPathFinder.dijkstra(graph, node, false);
+        final ShortestPathFinder shortestPathFinder = new ShortestPathFinder(graph, mode);
+        final Map<Long, Long> distances = shortestPathFinder.dijkstra(node.getId(), false);
         double eccentricity = (1.0 / Collections.max(distances.values()));
         ResultSet result = new ResultSet();
         result.addRow(new ResultRow(new String[]{"id", "eccentricity"}, new Object[]{node.getId(), eccentricity}));
@@ -119,11 +117,10 @@ public final class GraphCentralityProcedures implements RegistryContainer {
      * @param node Source node
      * @param mode Orientation of the graph
      * @return Result row containing the size of the maximum connected component
-     * @throws IOException
      */
     @Procedure(name = "analysis.network.centrality.mnc", signature = "TODO", description = "Calculates the maximum neighborhood component for a node")
     public static ResultSet maximumNeighborhoodComponent(final BaseGraph graph, final Node node, final GraphMode mode) throws IOException {
-        BFSResult maximumConnectedComponent = GraphProcedureUtils.getMaximumConnectedComponent(graph, node, mode);
+        BFSResult maximumConnectedComponent = GraphProcedureUtils.getMaximumConnectedComponent(graph, node.getId(), mode);
         ResultSet result = new ResultSet();
         result.addRow(new ResultRow(new String[]{"id", "mnc"}, new Object[]{node.getId(), maximumConnectedComponent.getVisitedNodes().size()}));
         return result;
@@ -136,12 +133,11 @@ public final class GraphCentralityProcedures implements RegistryContainer {
      * @param mode Orientation of the graph
      * @param epsilon
      * @return Result containing the node's id and the corresponding density of maximum neighborhood component
-     * @throws IOException
      */
     @Procedure(name = "analysis.network.centrality.dmnc", signature = "TODO", description = "Calculates the density of the maximum neighborhood component for a node")
     public static ResultSet densityOfMaximumNeighborhoodComponent(final BaseGraph graph, final Node node, final GraphMode mode, final double epsilon) throws IOException {
-        BFSResult maximumConnectedComponent = GraphProcedureUtils.getMaximumConnectedComponent(graph, node, mode);
-        double density = maximumConnectedComponent.getPaths().size() / Math.pow(maximumConnectedComponent.getVisitedNodes().size(), epsilon);
+        BFSResult maximumConnectedComponent = GraphProcedureUtils.getMaximumConnectedComponent(graph, node.getId(), mode);
+        double density = maximumConnectedComponent.getEdgePathIds().size() / Math.pow(maximumConnectedComponent.getVisitedNodes().size(), epsilon);
         ResultSet result = new ResultSet();
         result.addRow(new ResultRow(new String[]{"id", "dmnc"}, new Object[]{node.getId(), density}));
         return result;
@@ -161,12 +157,12 @@ public final class GraphCentralityProcedures implements RegistryContainer {
         //graph.getNodes().forEach(n -> nodes.add(n));
 
         // obtain all cliques containing target node
-        ArrayList<ArrayList<Node>> cliquesForNode = graphCliqueFinder.getCliquesForNode(node);
+        final List<List<Long>> cliquesForNode = graphCliqueFinder.getCliquesForNodeId(node.getId());
         System.out.println("cliques containing node: " + cliquesForNode.size());
 
         // calculate score
         int mcc = 0;
-        for(ArrayList<Node> clique : cliquesForNode) {
+        for(final List<Long> clique : cliquesForNode) {
             mcc += MathUtils.factorial(clique.size() - 1);
         }
 
@@ -176,30 +172,3 @@ public final class GraphCentralityProcedures implements RegistryContainer {
     }
 
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

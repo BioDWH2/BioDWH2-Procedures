@@ -21,7 +21,7 @@ public final class GraphProximityProcedures implements RegistryContainer {
     /**
      * Calculates the average length of all shortest paths between the drug targets
      * t ∈ T and the respective closest disease protein in the disease module
-     * @param merged Merged graph containing both drug targets and disease proteins
+     * @param graph Merged graph containing both drug targets and disease proteins
      * @param labelTarget Label describing the drug target nodes
      * @param labelDiseaseProteins Label describing the disease protein nodes
      * @param mode Graph mode, i.e. directed or undirected
@@ -32,15 +32,15 @@ public final class GraphProximityProcedures implements RegistryContainer {
      */
     @Procedure(name = "analysis.network.proximity.closest", signature = "TODO",
             description = "Calculates the Closest measure for a drug target set and a disease protein set")
-    public static ResultSet closest(final BaseGraph merged, final String labelTarget, final String labelDiseaseProteins, final GraphMode mode, final boolean isModified) {
+    public static ResultSet closest(final BaseGraph graph, final String labelTarget, final String labelDiseaseProteins, final GraphMode mode, final boolean isModified) {
         float sum = 0;
-        for(Node targetNode : merged.getNodes(labelTarget)) {
+        for(final Node targetNode : graph.getNodes(labelTarget)) {
             // retrieve distances to all protein nodes and add minimum to accumulated sum
-            ShortestPathFinder shortestPathFinder = new ShortestPathFinder(merged, mode);
-            HashMap<Long, Long> distances = shortestPathFinder.dijkstra(merged, targetNode, isModified, labelDiseaseProteins);
+            final ShortestPathFinder shortestPathFinder = new ShortestPathFinder(graph, mode);
+            final Map<Long, Long> distances = shortestPathFinder.dijkstra(targetNode.getId(), isModified, labelDiseaseProteins);
             sum += Collections.min(distances.values());
         }
-        sum *= (1.0 / merged.getNumberOfNodes(labelTarget));
+        sum *= (1.0 / graph.getNumberOfNodes(labelTarget));
         final ResultSet result = new ResultSet("d_c");
         result.addRow(new ResultRow(new String[]{"d_c"}, new Object[]{sum}));
         return result;
@@ -48,7 +48,7 @@ public final class GraphProximityProcedures implements RegistryContainer {
 
     /**
      * Calculates the average length of all shortest paths between drug targets T and disease proteins P.
-     * @param merged Merged graph containing both drug targets and disease proteins
+     * @param graph Merged graph containing both drug targets and disease proteins
      * @param labelTarget Label describing the drug target nodes
      * @param labelDiseaseProteins Label describing the disease protein nodes
      * @param mode Graph mode, i.e. directed or undirected
@@ -56,20 +56,20 @@ public final class GraphProximityProcedures implements RegistryContainer {
      */
     @Procedure(name = "analysis.network.proximity.shortest", signature = "TODO",
             description = "Calculates the Shortest measure for a drug target set and a disease protein set")
-    public static ResultSet shortest(final BaseGraph merged, final String labelTarget, final String labelDiseaseProteins, final GraphMode mode) {
+    public static ResultSet shortest(final BaseGraph graph, final String labelTarget, final String labelDiseaseProteins, final GraphMode mode) {
         float sum = 0;
-        for(Node targetNode : merged.getNodes(labelTarget)) {
+        for(Node targetNode : graph.getNodes(labelTarget)) {
             // calculate all shortest paths to all disease proteins and add them up ...
             float sumShortestPaths = 0;
-            ShortestPathFinder shortestPathFinder = new ShortestPathFinder(merged, mode);
-            HashMap<Long, Long> distances = shortestPathFinder.dijkstra(merged, targetNode,false, labelDiseaseProteins);
+            final ShortestPathFinder shortestPathFinder = new ShortestPathFinder(graph, mode);
+            final Map<Long, Long> distances = shortestPathFinder.dijkstra(targetNode.getId(), false, labelDiseaseProteins);
             for(Long distance : distances.values()) {
                 sumShortestPaths += distance;
             }
             // ... and add result to outer sum
-            sum += (1.0 / merged.getNumberOfNodes(labelDiseaseProteins)) * sumShortestPaths;
+            sum += (1.0 / graph.getNumberOfNodes(labelDiseaseProteins)) * sumShortestPaths;
         }
-        sum *= (1.0 / merged.getNumberOfNodes(labelTarget));
+        sum *= (1.0 / graph.getNumberOfNodes(labelTarget));
         final ResultSet result = new ResultSet("d_s");
         result.addRow(new ResultRow(new String[]{"d_s"}, new Object[]{sum}));
         return result;
@@ -89,8 +89,8 @@ public final class GraphProximityProcedures implements RegistryContainer {
         float sum = 0;
         for(Node drugTarget : merged.getNodes(labelTargets)) {
             double sumKernel = 0;
-            ShortestPathFinder shortestPathFinder = new ShortestPathFinder(merged, mode);
-            HashMap<Long, Long> distances = shortestPathFinder.dijkstra(merged, drugTarget, false, labelDiseaseProteins);
+            final ShortestPathFinder shortestPathFinder = new ShortestPathFinder(merged, mode);
+            final Map<Long, Long> distances = shortestPathFinder.dijkstra(drugTarget.getId(), false, labelDiseaseProteins);
             // add up all distances with exponential penalty ...
             for(Long distance : distances.values()) {
                 sumKernel += (Math.exp(- distance + 1)) / merged.getNumberOfNodes(labelDiseaseProteins);
@@ -129,7 +129,7 @@ public final class GraphProximityProcedures implements RegistryContainer {
         long numProteins = merged.getNumberOfNodes(labelDiseaseProteins);
         float dispersion = (numTargets * closestProteinsTargets + numProteins * closestTargetsProteins) / (numTargets + numProteins);
 
-        ResultSet result = new ResultSet("d_ss");
+        final ResultSet result = new ResultSet("d_ss");
         result.addRow(new ResultRow(new String[]{"d_ss"}, new Object[]{dispersion - sumAvgDistance}));
         return result;
     }
@@ -147,22 +147,22 @@ public final class GraphProximityProcedures implements RegistryContainer {
     public static ResultSet centre(final BaseGraph merged, final String labelTargets, final String labelDiseaseProteins, final GraphMode mode) {
 
         // calculate the topological center of disease module, i.e. the node with the largest closeness centrality in the module
-        HashMap<Long, Double> closenessForProtein = new HashMap<>();
-        for(Node node : merged.getNodes(labelDiseaseProteins)) {
+        final Map<Long, Double> closenessForProtein = new HashMap<>();
+        for(final Node node : merged.getNodes(labelDiseaseProteins)) {
             ResultSet result = GraphCentralityProcedures.closeness(merged, node, GraphMode.UNDIRECTED, labelDiseaseProteins);
             closenessForProtein.put(node.getId(), (double) result.getRow(0).getValue(1));
         }
-        Node centre = merged.getNode(Collections.max(closenessForProtein.entrySet(), Map.Entry.comparingByValue()).getKey());
+        final Node centre = merged.getNode(Collections.max(closenessForProtein.entrySet(), Map.Entry.comparingByValue()).getKey());
 
         // add up all distances from nodes in T to centre node and normalize
         double sum = 0;
-        ShortestPathFinder shortestPathFinder = new ShortestPathFinder(merged, mode);
-        for(Node drugTarget : merged.getNodes(labelTargets)) {
-            sum += shortestPathFinder.dijkstra(merged, centre, drugTarget).get(drugTarget.getId());
+        final ShortestPathFinder shortestPathFinder = new ShortestPathFinder(merged, mode);
+        for(final Node drugTarget : merged.getNodes(labelTargets)) {
+            sum += shortestPathFinder.dijkstra(centre.getId(), drugTarget.getId()).get(drugTarget.getId());
         }
         sum *= 1.0 / merged.getNumberOfNodes(labelTargets);
 
-        ResultSet result = new ResultSet("d_cc");
+        final ResultSet result = new ResultSet("d_cc");
         result.addRow(new ResultRow(new String[]{"d_cc"}, new Object[]{sum}));
         return result;
     }

@@ -1,9 +1,9 @@
 package de.unibi.agbi.biodwh2.procedures.procedures;
 
-import de.unibi.agbi.biodwh2.core.model.graph.Edge;
 import de.unibi.agbi.biodwh2.core.model.graph.Graph;
 import de.unibi.agbi.biodwh2.core.model.graph.Node;
 
+import de.unibi.agbi.biodwh2.procedures.ResultSet;
 import de.unibi.agbi.biodwh2.procedures.model.GraphMode;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -30,14 +30,14 @@ class GraphCentralityProceduresTest {
         final Node nodeE = graphDisconnected.addNode("E");
         final Node nodeF = graphDisconnected.addNode("F");
         final Node nodeG = graphDisconnected.addNode("G");
-        final Edge edgeAB = graphDisconnected.addEdge(nodeA, nodeB, "eAB");
-        final Edge edgeBD = graphDisconnected.addEdge(nodeB, nodeD, "eBD");
-        final Edge edgeCB = graphDisconnected.addEdge(nodeC, nodeB, "eCB");
-        final Edge edgeCE = graphDisconnected.addEdge(nodeC, nodeE, "eCE");
-        final Edge edgeDF = graphDisconnected.addEdge(nodeD, nodeF, "eDF");
-        final Edge edgeED = graphDisconnected.addEdge(nodeE, nodeD, "eED");
-        final Edge edgeEF = graphDisconnected.addEdge(nodeE, nodeF, "eEF");
-        final Edge edgeEE = graphDisconnected.addEdge(nodeE, nodeE, "eEE");
+        graphDisconnected.addEdge(nodeA, nodeB, "eAB");
+        graphDisconnected.addEdge(nodeB, nodeD, "eBD");
+        graphDisconnected.addEdge(nodeC, nodeB, "eCB");
+        graphDisconnected.addEdge(nodeC, nodeE, "eCE");
+        graphDisconnected.addEdge(nodeD, nodeF, "eDF");
+        graphDisconnected.addEdge(nodeE, nodeD, "eED");
+        graphDisconnected.addEdge(nodeE, nodeF, "eEF");
+        graphDisconnected.addEdge(nodeE, nodeE, "eEE");
 
         graphConnected = Graph.createTempGraph();
         final Node nodeA2 = graphConnected.addNode("A");
@@ -47,70 +47,90 @@ class GraphCentralityProceduresTest {
         final Node nodeE2 = graphConnected.addNode("E");
         final Node nodeF2 = graphConnected.addNode("F");
         final Node nodeG2 = graphConnected.addNode("G");
-        final Edge edgeAC2 = graphConnected.addEdge(nodeA2, nodeC2, "eAC");
-        final Edge edgeAB2 = graphConnected.addEdge(nodeA2, nodeB2, "eAB");
-        final Edge edgeAD2 = graphConnected.addEdge(nodeA2, nodeD2, "eAD");
-        final Edge edgeCF2 = graphConnected.addEdge(nodeC2, nodeF2, "eCF");
-        final Edge edgeFD2 = graphConnected.addEdge(nodeF2, nodeD2, "eFD");
-        final Edge edgeDE2 = graphConnected.addEdge(nodeD2, nodeE2, "eDE");
-        final Edge edgeFG2 = graphConnected.addEdge(nodeF2, nodeG2, "eFG");
-        final Edge edgeBE2 = graphConnected.addEdge(nodeB2, nodeE2, "eBE");
-        final Edge edgeEG2 = graphConnected.addEdge(nodeE2, nodeG2, "eEG");
+        graphConnected.addEdge(nodeA2, nodeC2, "eAC");
+        graphConnected.addEdge(nodeA2, nodeB2, "eAB");
+        graphConnected.addEdge(nodeA2, nodeD2, "eAD");
+        graphConnected.addEdge(nodeC2, nodeF2, "eCF");
+        graphConnected.addEdge(nodeF2, nodeD2, "eFD");
+        graphConnected.addEdge(nodeD2, nodeE2, "eDE");
+        graphConnected.addEdge(nodeF2, nodeG2, "eFG");
+        graphConnected.addEdge(nodeB2, nodeE2, "eBE");
+        graphConnected.addEdge(nodeE2, nodeG2, "eEG");
     }
 
     @Test
     void degreeTest() {
-        assertTrue((long) GraphCentralityProcedures.degree(graphDisconnected, graphDisconnected.findNode("E")).getRow(0).getValue(1) == 5);
-        assertTrue((long) GraphCentralityProcedures.degree(graphDisconnected, graphDisconnected.findNode("A")).getRow(0).getValue(1) == 1);
-        assertTrue((long) GraphCentralityProcedures.degree(graphDisconnected, graphDisconnected.findNode("G")).getRow(0).getValue(1) == 0);
+        assertEquals(5, (long) GraphCentralityProcedures.degree(graphDisconnected, graphDisconnected.findNode("E"))
+                                                        .getRow(0).getValue(1));
+        assertEquals(1, (long) GraphCentralityProcedures.degree(graphDisconnected, graphDisconnected.findNode("A"))
+                                                        .getRow(0).getValue(1));
+        assertEquals(0, (long) GraphCentralityProcedures.degree(graphDisconnected, graphDisconnected.findNode("G"))
+                                                        .getRow(0).getValue(1));
     }
 
     @Test
     void degreeInTest() {
-        assertTrue((long) GraphCentralityProcedures.degreeIn(graphDisconnected, graphDisconnected.findNode("B")).getRow(0).getValue(1) == 2);
-        assertTrue((long) GraphCentralityProcedures.degreeIn(graphDisconnected, graphDisconnected.findNode("E")).getRow(0).getValue(1) == 2);
-        assertTrue((long) GraphCentralityProcedures.degreeIn(graphDisconnected, graphDisconnected.findNode("G")).getRow(0).getValue(1) == 0);
+        assertEquals(2, (long) GraphCentralityProcedures.degreeIn(graphDisconnected, graphDisconnected.findNode("B"))
+                                                        .getRow(0).getValue(1));
+        assertEquals(2, (long) GraphCentralityProcedures.degreeIn(graphDisconnected, graphDisconnected.findNode("E"))
+                                                        .getRow(0).getValue(1));
+        assertEquals(0, (long) GraphCentralityProcedures.degreeIn(graphDisconnected, graphDisconnected.findNode("G"))
+                                                        .getRow(0).getValue(1));
     }
 
     @Test
     void degreeOutTest() {
-        assertTrue((long) GraphCentralityProcedures.degreeOut(graphDisconnected, graphDisconnected.findNode("B")).getRow(0).getValue(1) == 1);
-        assertTrue((long) GraphCentralityProcedures.degreeOut(graphDisconnected, graphDisconnected.findNode("E")).getRow(0).getValue(1) == 3);
-        assertTrue((long) GraphCentralityProcedures.degreeOut(graphDisconnected, graphDisconnected.findNode("G")).getRow(0).getValue(1) == 0);
+        assertEquals(1, (long) GraphCentralityProcedures.degreeOut(graphDisconnected, graphDisconnected.findNode("B"))
+                                                        .getRow(0).getValue(1));
+        assertEquals(3, (long) GraphCentralityProcedures.degreeOut(graphDisconnected, graphDisconnected.findNode("E"))
+                                                        .getRow(0).getValue(1));
+        assertEquals(0, (long) GraphCentralityProcedures.degreeOut(graphDisconnected, graphDisconnected.findNode("G"))
+                                                        .getRow(0).getValue(1));
     }
 
     @Test
     void closenessTest() throws IOException {
-        Graph graph = Graph.createTempGraph();
-        Node nodeA = graph.addNode("A");
-        Node nodeB = graph.addNode("B");
-        Node nodeC = graph.addNode("C");
-        Node nodeD = graph.addNode("D");
-        Node nodeE = graph.addNode("E");
-        Node nodeF = graph.addNode("F");
-        Node nodeG = graph.addNode("G");
-        Node nodeH = graph.addNode("H");
-        Edge edgeAB = graph.addEdge(nodeA, nodeB, "eAB");
-        Edge edgeBC = graph.addEdge(nodeB, nodeC, "eBC");
-        Edge edgeCD = graph.addEdge(nodeC, nodeD, "eAB");
-        Edge edgeDE = graph.addEdge(nodeD, nodeE, "eDE");
-        Edge edgeDH = graph.addEdge(nodeD, nodeH, "eDH");
-        Edge edgeEF = graph.addEdge(nodeE, nodeF, "eEF");
-        Edge edgeEG = graph.addEdge(nodeE, nodeG, "eEG");
-        Edge edgeEH = graph.addEdge(nodeE, nodeH, "eEH");
-        Edge edgeFG = graph.addEdge(nodeF, nodeG, "eFG");
-        Edge edgeHG = graph.addEdge(nodeH, nodeG, "eHG");
+        final Graph graph = Graph.createTempGraph();
+        final Node nodeA = graph.addNode("A");
+        final Node nodeB = graph.addNode("B");
+        final Node nodeC = graph.addNode("C");
+        final Node nodeD = graph.addNode("D");
+        final Node nodeE = graph.addNode("E");
+        final Node nodeF = graph.addNode("F");
+        final Node nodeG = graph.addNode("G");
+        final Node nodeH = graph.addNode("H");
+        graph.addEdge(nodeA, nodeB, "eAB");
+        graph.addEdge(nodeB, nodeC, "eBC");
+        graph.addEdge(nodeC, nodeD, "eAB");
+        graph.addEdge(nodeD, nodeE, "eDE");
+        graph.addEdge(nodeD, nodeH, "eDH");
+        graph.addEdge(nodeE, nodeF, "eEF");
+        graph.addEdge(nodeE, nodeG, "eEG");
+        graph.addEdge(nodeE, nodeH, "eEH");
+        graph.addEdge(nodeF, nodeG, "eFG");
+        graph.addEdge(nodeH, nodeG, "eHG");
 
-        double degD = (double) GraphCentralityProcedures.closeness(graph, graph.findNode("D"), GraphMode.UNDIRECTED).getRow(0).getValue(1);
-        double degA = (double) GraphCentralityProcedures.closeness(graph, graph.findNode("A"), GraphMode.UNDIRECTED).getRow(0).getValue(1);
+        double degD = (double) GraphCentralityProcedures.closeness(graph, graph.findNode("D"), GraphMode.UNDIRECTED)
+                                                        .getRow(0).getValue(1);
+        double degA = (double) GraphCentralityProcedures.closeness(graph, graph.findNode("A"), GraphMode.UNDIRECTED)
+                                                        .getRow(0).getValue(1);
         assertTrue(degD > degA);
     }
 
     @Test
     void eccentricityTest() {
-        assertTrue((double) GraphCentralityProcedures.eccentricity(graphConnected, graphConnected.findNode("A"), GraphMode.UNDIRECTED).getRow(0).getValue(1) == 1.0 / 3);
-        assertTrue((double) GraphCentralityProcedures.eccentricity(graphConnected, graphConnected.findNode("B"), GraphMode.UNDIRECTED).getRow(0).getValue(1) == 1.0/3);
-        assertTrue((double) GraphCentralityProcedures.eccentricity(graphConnected, graphConnected.findNode("D"), GraphMode.UNDIRECTED).getRow(0).getValue(1) == 1.0/2);
+        assertEquals(1.0 / 3, (double) GraphCentralityProcedures.eccentricity(graphConnected,
+                                                                              graphConnected.findNode("A"),
+                                                                              GraphMode.UNDIRECTED).getRow(0)
+                                                                .getValue(1));
+        assertEquals(1.0 / 3, (double) GraphCentralityProcedures.eccentricity(graphConnected,
+                                                                              graphConnected.findNode("B"),
+                                                                              GraphMode.UNDIRECTED).getRow(0)
+                                                                .getValue(1));
+        assertEquals(1.0 / 2, (double) GraphCentralityProcedures.eccentricity(graphConnected,
+                                                                              graphConnected.findNode("D"),
+                                                                              GraphMode.UNDIRECTED).getRow(0)
+                                                                .getValue(1));
     }
 
     @Test
@@ -129,7 +149,9 @@ class GraphCentralityProceduresTest {
         graph.addEdge(node3, node4, "e3-4");
         graph.addEdge(node4, node5, "e4-5");
         graph.addEdge(node4, node6, "e4-6");
-        assertTrue((int) GraphCentralityProcedures.maximumNeighborhoodComponent(graph, graph.findNode("5"), GraphMode.UNDIRECTED).getRow(0).getValue(1) == 2);
+        assertEquals(2, (int) GraphCentralityProcedures.maximumNeighborhoodComponent(graph, graph.findNode("5"),
+                                                                                     GraphMode.UNDIRECTED).getRow(0)
+                                                       .getValue(1));
     }
 
     @Test
@@ -148,7 +170,11 @@ class GraphCentralityProceduresTest {
         graph.addEdge(node3, node4, "e3-4");
         graph.addEdge(node4, node5, "e4-5");
         graph.addEdge(node4, node6, "e4-6");
-        assertTrue((double) GraphCentralityProcedures.densityOfMaximumNeighborhoodComponent(graph, graph.findNode("5"), GraphMode.UNDIRECTED, 1.7).getRow(0).getValue(1) == 0.3077861033362291);
+        final Node sourceNode = graph.findNode("5");
+        final ResultSet result = GraphCentralityProcedures.densityOfMaximumNeighborhoodComponent(graph, sourceNode,
+                                                                                                 GraphMode.UNDIRECTED,
+                                                                                                 1.7);
+        assertEquals(0.3077861033362291, (double) result.getRow(0).getValue(1));
     }
 
     @Test
@@ -172,6 +198,7 @@ class GraphCentralityProceduresTest {
         graph.addEdge(nodeD, nodeF, "eDF");
         graph.addEdge(nodeD, nodeE, "eDE");
 
-        assertTrue((int) GraphCentralityProcedures.maximalCliqueCentrality(graph, graph.findNode("A")).getRow(0).getValue(1) == 3);
+        assertEquals(3, (int) GraphCentralityProcedures.maximalCliqueCentrality(graph, graph.findNode("A")).getRow(0)
+                                                       .getValue(1));
     }
 }

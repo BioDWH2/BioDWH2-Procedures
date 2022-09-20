@@ -5,7 +5,6 @@ import de.unibi.agbi.biodwh2.core.model.graph.Edge;
 import de.unibi.agbi.biodwh2.core.model.graph.Graph;
 import de.unibi.agbi.biodwh2.core.model.graph.Node;
 import de.unibi.agbi.biodwh2.procedures.model.BFSResult;
-import de.unibi.agbi.biodwh2.procedures.model.DistancePair;
 import de.unibi.agbi.biodwh2.procedures.model.GraphMode;
 
 import java.io.IOException;
@@ -23,81 +22,73 @@ public class GraphProcedureUtils {
      * <p>
      * TODO: use nodes instead of their ids for queue and implement comparable in node
      *
-     * @param graph     The graph in which the source node resides
-     * @param nodeStart Node from which the search is initiated
+     * @param graph       The graph in which the source node resides
+     * @param startNodeId Node from which the search is initiated
      */
-    public static BFSResult breadthFirstSearch(final BaseGraph graph, Node nodeStart, final GraphMode mode) {
+    public static BFSResult breadthFirstSearch(final BaseGraph graph, final long startNodeId, final GraphMode mode) {
 
-        PriorityQueue<Long> queue = new PriorityQueue<>();
-        ArrayList<Edge> paths = new ArrayList<>();
+        final Queue<Long> queue = new PriorityQueue<>();
+        final List<Long> edgePathIds = new ArrayList<>();
 
         // add all nodes and mark as unvisited
-        HashMap<Long, Boolean> visited = new HashMap<>();
-        for (Node node : graph.getNodes()) {
+        final Map<Long, Boolean> visited = new HashMap<>();
+        for (final Node node : graph.getNodes()) {
             visited.put(node.getId(), false);
         }
 
         // mark starting node as visited and enqueue
-        visited.put(nodeStart.getId(), true);
-        queue.add(nodeStart.getId());
+        visited.put(startNodeId, true);
+        queue.add(startNodeId);
 
         // continue to visit nodes via adjacent paths as long as queue is not empty
         while (!queue.isEmpty()) {
-            Node currentNode = graph.getNode(queue.poll());
-            ArrayList<Node> neighbors = GraphProcedureUtils.getNeighbors(graph, currentNode, mode);
-            for (Node neighbor : neighbors) {
+            final long currentNodeId = queue.poll();
+            final List<Long> neighbors = GraphProcedureUtils.getNeighbors(graph, currentNodeId, mode);
+            for (final Long neighborId : neighbors) {
                 // if neighbor has not yet been visited -> visit neighbor and mark it accordingly
-                long id = neighbor.getId();
-                if (!visited.get(id)) {
+                final Boolean isVisited = visited.get(neighborId);
+                if (isVisited == null || !isVisited) {
 
                     // find path that was used to traverse from the current node to its neighbor
-                    Edge edge = graph.findEdge(Edge.FROM_ID_FIELD, currentNode.getId(), Edge.TO_ID_FIELD,
-                                               neighbor.getId());
+                    Edge edge = graph.findEdge(Edge.FROM_ID_FIELD, currentNodeId, Edge.TO_ID_FIELD, neighborId);
                     if (edge == null && mode.equals(GraphMode.UNDIRECTED)) {
-                        edge = graph.findEdge(Edge.FROM_ID_FIELD, neighbor.getId(), Edge.TO_ID_FIELD,
-                                              currentNode.getId());
+                        edge = graph.findEdge(Edge.FROM_ID_FIELD, neighborId, Edge.TO_ID_FIELD, currentNodeId);
                     }
                     if (edge != null) {
-                        paths.add(edge);
+                        edgePathIds.add(edge.getId());
                     }
 
-                    visited.put(id, true);
-                    queue.add(id);
+                    visited.put(neighborId, true);
+                    queue.add(neighborId);
                 }
             }
         }
 
         // only include visited nodes in result
-        Map filterOnlyVisited = visited.entrySet().stream().filter(isVisited -> isVisited.getValue()).collect(
-                Collectors.toMap(e -> e.getKey(), e -> e.getValue()));
+        final Map<Long, Boolean> filterOnlyVisited = visited.entrySet().stream().filter(Map.Entry::getValue).collect(
+                Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
-        return new BFSResult((HashMap<Long, Boolean>) filterOnlyVisited, paths);
+        return new BFSResult(filterOnlyVisited, edgePathIds);
     }
 
     /**
      * Collects all adjacent neighbors for a node.
      *
-     * @param graph Graph in which the node resides
-     * @param node  Source node
-     * @param mode  Orientation of the graph, determines which edges are considered
+     * @param graph  Graph in which the node resides
+     * @param nodeId Source node id
+     * @param mode   Orientation of the graph, determines which edges are considered
      * @return List with all adjacent neighbors for the node
      */
-    public static ArrayList<Node> getNeighbors(final BaseGraph graph, Node node, GraphMode mode) {
-        ArrayList<Node> adjacencyList = new ArrayList<>();
-        Iterable<Edge> outDegrees = graph.findEdges(Edge.FROM_ID_FIELD, node.getId());
-        for (Edge edge : outDegrees) {
-            Node outDegreeNeighbor = graph.getNode(edge.getProperty(Edge.TO_ID_FIELD));
-            if (outDegreeNeighbor != null) {
-                adjacencyList.add(outDegreeNeighbor);
-            }
+    public static List<Long> getNeighbors(final BaseGraph graph, final long nodeId, final GraphMode mode) {
+        final List<Long> adjacencyList = new ArrayList<>();
+        final Iterable<Edge> outDegrees = graph.findEdges(Edge.FROM_ID_FIELD, nodeId);
+        for (final Edge edge : outDegrees) {
+            adjacencyList.add(edge.getProperty(Edge.TO_ID_FIELD));
         }
         if (mode.equals(GraphMode.UNDIRECTED)) {
-            Iterable<Edge> inDegrees = graph.findEdges(Edge.TO_ID_FIELD, node.getId());
-            for (Edge edge : inDegrees) {
-                Node inDegreeNeighbor = graph.getNode(edge.getProperty(Edge.FROM_ID_FIELD));
-                if (inDegreeNeighbor != null) {
-                    adjacencyList.add(inDegreeNeighbor);
-                }
+            final Iterable<Edge> inDegrees = graph.findEdges(Edge.TO_ID_FIELD, nodeId);
+            for (final Edge edge : inDegrees) {
+                adjacencyList.add(edge.getProperty(Edge.FROM_ID_FIELD));
             }
         }
         return adjacencyList;
@@ -106,38 +97,38 @@ public class GraphProcedureUtils {
     /**
      * Creates a subgraph from the open neighborhood of a source node v, i.e. the subgraph of all nodes adjacent to v.
      *
-     * @param graph Graph in which the node resides
-     * @param node  Source node (not included in result)
-     * @param mode  Orientation of the graph, determines which nodes and edges are included
+     * @param graph  Graph in which the node resides
+     * @param nodeId Source node (not included in result)
+     * @param mode   Orientation of the graph, determines which nodes and edges are included
      * @return A subgraph containing the open neighborhood
      */
-    public static BaseGraph getOpenNeighborhoodAsSubgraph(final BaseGraph graph, Node node, final GraphMode mode) throws IOException {
+    public static BaseGraph getOpenNeighborhoodAsSubgraph(final BaseGraph graph, final long nodeId, final GraphMode mode) throws IOException {
 
-        Graph openNeighborhoodSubgraph = Graph.createTempGraph();
+        final Graph openNeighborhoodSubgraph = Graph.createTempGraph();
 
         // gather all outgoing nodes
-        Iterable<Edge> outDegrees = graph.findEdges(Edge.FROM_ID_FIELD, node.getId());
-        for (Edge edge : outDegrees) {
+        final Iterable<Edge> outDegrees = graph.findEdges(Edge.FROM_ID_FIELD, nodeId);
+        for (final Edge edge : outDegrees) {
             //openNeighborhoodSubgraph.update(edge);
             openNeighborhoodSubgraph.update(graph.getNode(edge.getProperty(Edge.TO_ID_FIELD)));
         }
 
         // gather all incoming nodes (undirected graphs only)
         if (mode.equals(GraphMode.UNDIRECTED)) {
-            Iterable<Edge> inDegrees = graph.findEdges(Edge.TO_ID_FIELD, node.getId());
-            for (Edge edge : inDegrees) {
+            final Iterable<Edge> inDegrees = graph.findEdges(Edge.TO_ID_FIELD, nodeId);
+            for (final Edge edge : inDegrees) {
                 //openNeighborhoodSubgraph.update(edge);
                 openNeighborhoodSubgraph.update(graph.getNode(edge.getProperty(Edge.FROM_ID_FIELD)));
             }
         }
 
-        for (Node neighbor : openNeighborhoodSubgraph.getNodes()) {
-            Edge edgeIn = graph.findEdge(Edge.TO_ID_FIELD, neighbor.getId());
+        for (final Node neighbor : openNeighborhoodSubgraph.getNodes()) {
+            final Edge edgeIn = graph.findEdge(Edge.TO_ID_FIELD, neighbor.getId());
             if (edgeIn != null) {
                 openNeighborhoodSubgraph.update(edgeIn);
             }
             if (mode.equals(GraphMode.UNDIRECTED)) {
-                Edge edgeOut = graph.findEdge(Edge.FROM_ID_FIELD, neighbor.getId());
+                final Edge edgeOut = graph.findEdge(Edge.FROM_ID_FIELD, neighbor.getId());
                 if (edgeOut != null) {
                     openNeighborhoodSubgraph.update(edgeOut);
                 }
@@ -150,22 +141,22 @@ public class GraphProcedureUtils {
     /**
      * Finds the largest connected component in a graph inside from the neighborhood of a specified node.
      *
-     * @param graph Graph in which the node resides
-     * @param node  Node to be analyzed
-     * @param mode  Orientation of the graph
+     * @param graph  Graph in which the node resides
+     * @param nodeId Node to be analyzed
+     * @param mode   Orientation of the graph
      * @return Largest connected component in the open neighborhood of the node
      */
-    public static BFSResult getMaximumConnectedComponent(final BaseGraph graph, final Node node,
+    public static BFSResult getMaximumConnectedComponent(final BaseGraph graph, final long nodeId,
                                                          final GraphMode mode) throws IOException {
 
         // calculate open neighborhood (i.e. neighborhood not containing node)
-        BaseGraph openNeighborHood = GraphProcedureUtils.getOpenNeighborhoodAsSubgraph(graph, node, mode);
-        ArrayList<BFSResult> neighborHoodComponents = GraphProcedureUtils.findComponentsUndirected(openNeighborHood);
+        final BaseGraph openNeighborHood = GraphProcedureUtils.getOpenNeighborhoodAsSubgraph(graph, nodeId, mode);
+        final List<BFSResult> neighborHoodComponents = GraphProcedureUtils.findComponentsUndirected(openNeighborHood);
 
         int size = 0;
         BFSResult largest = null;
         // compare number of nodes in components
-        for (BFSResult component : neighborHoodComponents) {
+        for (final BFSResult component : neighborHoodComponents) {
             int componentSize = component.getVisitedNodes().size();
             if (componentSize > size) {
                 size = componentSize;
@@ -182,27 +173,26 @@ public class GraphProcedureUtils {
      * @param graph Graph that is supposed to be divided into components
      * @return List of all BFS results containing the node IDs and edges of the components
      */
-    public static ArrayList<BFSResult> findComponentsUndirected(final BaseGraph graph) {
+    public static List<BFSResult> findComponentsUndirected(final BaseGraph graph) {
 
-        ArrayList<BFSResult> results = new ArrayList<>();
-        HashMap<Long, Boolean> nodesVisitedInfo = new HashMap<>();
-        PriorityQueue<Long> nodesToVisit = new PriorityQueue<>();
+        final List<BFSResult> results = new ArrayList<>();
+        final Map<Long, Boolean> nodesVisitedInfo = new HashMap<>();
+        final Queue<Long> nodesToVisit = new PriorityQueue<>();
 
         // enqueue all nodes and mark them as unvisited
-        for (Node node : graph.getNodes()) {
+        for (final Node node : graph.getNodes()) {
             nodesToVisit.add(node.getId());
             nodesVisitedInfo.put(node.getId(), false);
         }
 
         while (!nodesToVisit.isEmpty()) {
-            Long currentNodeID = nodesToVisit.poll();
-            if (!nodesVisitedInfo.get(currentNodeID)) {
+            final Long currentNodeId = nodesToVisit.poll();
+            if (!nodesVisitedInfo.get(currentNodeId)) {
                 // do bfs if node has not been visited yet
-                BFSResult result = GraphProcedureUtils.breadthFirstSearch(graph, graph.getNode(currentNodeID),
-                                                                          GraphMode.UNDIRECTED);
+                BFSResult result = GraphProcedureUtils.breadthFirstSearch(graph, currentNodeId, GraphMode.UNDIRECTED);
                 results.add(result);
                 // mark all nodes that were visited in course of this search
-                for (long id : result.getVisitedNodes().keySet()) {
+                for (final long id : result.getVisitedNodes().keySet()) {
                     nodesVisitedInfo.put(id, true);
                 }
             }

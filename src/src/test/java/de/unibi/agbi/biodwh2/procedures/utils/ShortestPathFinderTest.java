@@ -1,6 +1,5 @@
 package de.unibi.agbi.biodwh2.procedures.utils;
 
-import de.unibi.agbi.biodwh2.core.model.graph.Edge;
 import de.unibi.agbi.biodwh2.core.model.graph.Graph;
 import de.unibi.agbi.biodwh2.core.model.graph.Node;
 import de.unibi.agbi.biodwh2.procedures.model.GraphMode;
@@ -9,7 +8,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 
 import java.io.IOException;
-import java.util.HashMap;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -29,43 +28,45 @@ class ShortestPathFinderTest {
         final Node nodeE = graph.addNode("E");
         final Node nodeF = graph.addNode("F");
         final Node nodeG = graph.addNode("G");
-        final Edge edgeAB = graph.addEdge(nodeA, nodeB, "eAB");
-        final Edge edgeBD = graph.addEdge(nodeB, nodeD, "eBD");
-        final Edge edgeCB = graph.addEdge(nodeC, nodeB, "eCB");
-        final Edge edgeCE = graph.addEdge(nodeC, nodeE, "eCE");
-        final Edge edgeDF = graph.addEdge(nodeD, nodeF, "eDF");
-        final Edge edgeED = graph.addEdge(nodeE, nodeD, "eED");
-        final Edge edgeEF = graph.addEdge(nodeE, nodeF, "eEF");
-        final Edge edgeEE = graph.addEdge(nodeE, nodeE, "eEE");
+        graph.addEdge(nodeA, nodeB, "eAB");
+        graph.addEdge(nodeB, nodeD, "eBD");
+        graph.addEdge(nodeC, nodeB, "eCB");
+        graph.addEdge(nodeC, nodeE, "eCE");
+        graph.addEdge(nodeD, nodeF, "eDF");
+        graph.addEdge(nodeE, nodeD, "eED");
+        graph.addEdge(nodeE, nodeF, "eEF");
+        graph.addEdge(nodeE, nodeE, "eEE");
 
         this.shortestPathFinder = new ShortestPathFinder(graph, GraphMode.UNDIRECTED);
     }
 
     @Test
     void dijkstraSourceTargetTest() {
-        Node source = graph.findNode("A");
-        Node target = graph.findNode("D");
-        HashMap<Long, Long> distances = shortestPathFinder.dijkstra(graph, source, target);
-        assertTrue(distances.size() == 1);
-        assertTrue(distances.get(target.getId()) == 2);
+        final Node source = graph.findNode("A");
+        final Node target = graph.findNode("D");
+        final Map<Long, Long> distances = shortestPathFinder.dijkstra(source.getId(), target.getId());
+        assertEquals(1, distances.size());
+        assertEquals(2, (long) distances.get(target.getId()));
     }
 
     @Test
     void dijkstraMultiTargetTestWithSelfToZero() {
-        HashMap<Long, Long> distances = shortestPathFinder.dijkstra(graph, graph.findNode("A"), false);
-        assertTrue(distances.get(graph.findNode("A").getId()) == 0);
-        assertTrue(distances.get(graph.findNode("D").getId()) == 2);
-        assertTrue(distances.get(graph.findNode("F").getId()) == 3);
-        assertTrue(distances.get(graph.findNode("G").getId()) == Long.MAX_VALUE);
+        final Node source = graph.findNode("A");
+        final Map<Long, Long> distances = shortestPathFinder.dijkstra(source.getId(), false);
+        assertEquals(0, (long) distances.get(graph.findNode("A").getId()));
+        assertEquals(2, (long) distances.get(graph.findNode("D").getId()));
+        assertEquals(3, (long) distances.get(graph.findNode("F").getId()));
+        assertEquals(Long.MAX_VALUE, (long) distances.get(graph.findNode("G").getId()));
     }
 
     @Test
     void dijkstraMultiTargetTestWithSelfToInfinity() {
-        HashMap<Long, Long> distances = shortestPathFinder.dijkstra(graph, graph.findNode("A"), true);
-        assertTrue(distances.get(graph.findNode("A").getId()) == Long.MAX_VALUE);
-        assertTrue(distances.get(graph.findNode("D").getId()) == 2);
-        assertTrue(distances.get(graph.findNode("F").getId()) == 3);
-        assertTrue(distances.get(graph.findNode("G").getId()) == Long.MAX_VALUE);
+        final Node source = graph.findNode("A");
+        final Map<Long, Long> distances = shortestPathFinder.dijkstra(source.getId(), true);
+        assertEquals(Long.MAX_VALUE, (long) distances.get(graph.findNode("A").getId()));
+        assertEquals(2, (long) distances.get(graph.findNode("D").getId()));
+        assertEquals(3, (long) distances.get(graph.findNode("F").getId()));
+        assertEquals(Long.MAX_VALUE, (long) distances.get(graph.findNode("G").getId()));
     }
 
 }

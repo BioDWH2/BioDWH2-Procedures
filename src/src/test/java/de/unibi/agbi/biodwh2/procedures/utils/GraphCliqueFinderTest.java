@@ -5,7 +5,7 @@ import de.unibi.agbi.biodwh2.core.model.graph.Node;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -13,13 +13,13 @@ class GraphCliqueFinderTest {
 
     @Test
     void findCliquesTest() throws IOException {
-        Graph graph = Graph.createTempGraph();
-        Node nodeA = graph.addNode("A");
-        Node nodeB = graph.addNode("B");
-        Node nodeC = graph.addNode("C");
-        Node nodeD = graph.addNode("D");
-        Node nodeE = graph.addNode("E");
-        Node nodeF = graph.addNode("F");
+        final Graph graph = Graph.createTempGraph();
+        final Node nodeA = graph.addNode("A");
+        final Node nodeB = graph.addNode("B");
+        final Node nodeC = graph.addNode("C");
+        final Node nodeD = graph.addNode("D");
+        final Node nodeE = graph.addNode("E");
+        final Node nodeF = graph.addNode("F");
 
         graph.addEdge(nodeA, nodeB, "eAB");
         graph.addEdge(nodeA, nodeC, "eAC");
@@ -32,17 +32,17 @@ class GraphCliqueFinderTest {
         graph.addEdge(nodeD, nodeF, "eDF");
         graph.addEdge(nodeD, nodeE, "eDE");
 
-        GraphCliqueFinder graphCliqueFinder = new GraphCliqueFinder(graph);
+        final GraphCliqueFinder graphCliqueFinder = new GraphCliqueFinder(graph);
 
-        for(ArrayList<Node> clique : graphCliqueFinder.getCliques()) {
+        for (final List<Long> clique : graphCliqueFinder.getCliques()) {
             System.out.println("################## NEW CLIQUE FOUND ##################");
-            for(Node node : clique) {
-                System.out.print(" " + node.getLabel() + " ");
+            for (Long nodeId : clique) {
+                System.out.print(" " + graph.getNodeLabel(nodeId) + " ");
             }
             System.out.println();
         }
 
-        assertTrue(graphCliqueFinder.getCliques().size() == 4);
+        assertEquals(4, graphCliqueFinder.getCliques().size());
     }
 
 }

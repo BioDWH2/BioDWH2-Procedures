@@ -1,15 +1,15 @@
 package de.unibi.agbi.biodwh2.procedures.utils;
 
 import de.unibi.agbi.biodwh2.core.model.graph.BaseGraph;
-import de.unibi.agbi.biodwh2.core.model.graph.Graph;
 import de.unibi.agbi.biodwh2.core.model.graph.Node;
 import de.unibi.agbi.biodwh2.procedures.model.GraphMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Objects;
 
 /**
  * Finds cliques in a given graph.
@@ -21,14 +21,14 @@ public class GraphCliqueFinder {
     /**
      * All cliques found while performing the clique finding algorithm
      */
-    private ArrayList<ArrayList<Node>> cliques;
+    private List<List<Long>> cliques;
     /**
      * Target graph
      */
     private BaseGraph graph;
 
     public GraphCliqueFinder(final BaseGraph graph) {
-        this.cliques = new ArrayList<ArrayList<Node>>();
+        this.cliques = new ArrayList<>();
         this.graph = graph;
         init(graph);
     }
@@ -42,43 +42,40 @@ public class GraphCliqueFinder {
      * @param depth Recursion depth
      * @return
      */
-    private int findCliques(final BaseGraph graph, ArrayList<Node> potentialClique, ArrayList<Node> remaining, ArrayList<Node> skip, int depth) {
+    private int findCliques(final BaseGraph graph, final List<Long> potentialClique, final List<Long> remaining, final List<Long> skip, final int depth) {
 
         // all nodes have been processed -> new clique has been found
         if(remaining.isEmpty() && skip.isEmpty()) {
-            ArrayList<Node> clique = new ArrayList<>();
-            for(Node node : potentialClique) {
-                clique.add(node);
-            }
+            final List<Long> clique = new ArrayList<>(potentialClique);
             cliques.add(clique);
             return 1;
         }
 
         int cliquesFound = 0;
 
-        Iterator<Node> iterator = remaining.iterator();
+        final Iterator<Long> iterator = remaining.iterator();
 
         while(iterator.hasNext()) {
 
             // obtain node an neighbor list
-            Node node = iterator.next();
-            ArrayList<Node> neighbors = GraphProcedureUtils.getNeighbors(graph, node, GraphMode.UNDIRECTED);
+            final Long node = iterator.next();
+            final List<Long> neighbors = GraphProcedureUtils.getNeighbors(graph, node, GraphMode.UNDIRECTED);
 
             // add node to clique
-            ArrayList<Node> newPotentialClique = potentialClique;
+            List<Long> newPotentialClique = potentialClique;
             newPotentialClique.add(node);
 
             // update list of remaining nodes
-            ArrayList<Node> remainingNew = new ArrayList<>();
-            for(Node nodeRemaining : remaining) {
+            final List<Long> remainingNew = new ArrayList<>();
+            for(final Long nodeRemaining : remaining) {
                 if(containsNode(nodeRemaining, neighbors)) {
                     remainingNew.add(nodeRemaining);
                 }
             }
 
             // update list of nodes to skip
-            ArrayList<Node> skipNew = new ArrayList<>();
-            for(Node nodeSkip : skip) {
+            final List<Long> skipNew = new ArrayList<>();
+            for(final Long nodeSkip : skip) {
                 if(containsNode(nodeSkip, neighbors)) {
                     skipNew.add(nodeSkip);
                 }
@@ -98,14 +95,14 @@ public class GraphCliqueFinder {
 
     /**
      * Finds all cliques detected by the Clique finder that contain a specific node
-     * @param node Target node
+     * @param nodeId Target node
      * @return List containing all cliques with target node
      */
-    public ArrayList<ArrayList<Node>> getCliquesForNode(Node node) {
-        ArrayList<ArrayList<Node>> cliquesForNode = new ArrayList<>();
-        for(ArrayList<Node> clique : cliques) {
+    public List<List<Long>> getCliquesForNodeId(final Long nodeId) {
+        final List<List<Long>> cliquesForNode = new ArrayList<>();
+        for(final List<Long> clique : cliques) {
             System.out.println("size: " + clique.size());
-            if(containsNode(node, clique)) {
+            if(containsNode(nodeId, clique)) {
                 cliquesForNode.add(clique);
             }
         }
@@ -113,17 +110,15 @@ public class GraphCliqueFinder {
     }
 
     /**
-     * Check whether a list contains a node (auxiliary function)
-     * @param node Target node
-     * @param list List to check
+     * Check whether a list contains a node id (auxiliary function)
+     * @param nodeId Target node id
+     * @param list   List to check
      * @return Determines whether the list contains the node
      */
-    private boolean containsNode(Node node, ArrayList<Node> list) {
-        for(Node element : list) {
-            if(element.getId().equals(node.getId())) {
+    private boolean containsNode(final Long nodeId, final List<Long> list) {
+        for(final Long element : list)
+            if (Objects.equals(element, nodeId))
                 return true;
-            }
-        }
         return false;
     }
 
@@ -133,10 +128,10 @@ public class GraphCliqueFinder {
      */
     private void init(final BaseGraph graph) {
         LOGGER.info("Initializing clique detection ...");
-        ArrayList<Node> nodesInitial = new ArrayList<>();
+        final List<Long> nodesInitial = new ArrayList<>();
         // add all graph nodes to "remaining" list
-        for(Node node : graph.getNodes()) {
-            nodesInitial.add(node);
+        for(final Node node : graph.getNodes()) {
+            nodesInitial.add(node.getId());
         }
         // start actual detection
         findCliques(graph, new ArrayList<>(), nodesInitial, new ArrayList<>(), 0);
@@ -154,6 +149,8 @@ public class GraphCliqueFinder {
         init(graph);
     }
 
-    public ArrayList<ArrayList<Node>> getCliques() { return cliques; }
+    public List<List<Long>> getCliques() {
+        return cliques;
+    }
 
 }

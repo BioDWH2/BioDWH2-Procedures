@@ -1,7 +1,6 @@
 package de.unibi.agbi.biodwh2.procedures.utils;
 
 import de.unibi.agbi.biodwh2.core.model.graph.BaseGraph;
-import de.unibi.agbi.biodwh2.core.model.graph.Edge;
 import de.unibi.agbi.biodwh2.core.model.graph.Graph;
 import de.unibi.agbi.biodwh2.core.model.graph.Node;
 
@@ -31,50 +30,54 @@ class GraphProcedureUtilsTest {
         final Node nodeE = graph.addNode("E");
         final Node nodeF = graph.addNode("F");
         final Node nodeG = graph.addNode("G");
-        final Edge edgeAB = graph.addEdge(nodeA, nodeB, "eAB");
-        final Edge edgeBD = graph.addEdge(nodeB, nodeD, "eBD");
-        final Edge edgeCB = graph.addEdge(nodeC, nodeB, "eCB");
-        final Edge edgeCE = graph.addEdge(nodeC, nodeE, "eCE");
-        final Edge edgeDF = graph.addEdge(nodeD, nodeF, "eDF");
-        final Edge edgeED = graph.addEdge(nodeE, nodeD, "eED");
-        final Edge edgeEF = graph.addEdge(nodeE, nodeF, "eEF");
-        final Edge edgeEE = graph.addEdge(nodeE, nodeE, "eEE");
+        graph.addEdge(nodeA, nodeB, "eAB");
+        graph.addEdge(nodeB, nodeD, "eBD");
+        graph.addEdge(nodeC, nodeB, "eCB");
+        graph.addEdge(nodeC, nodeE, "eCE");
+        graph.addEdge(nodeD, nodeF, "eDF");
+        graph.addEdge(nodeE, nodeD, "eED");
+        graph.addEdge(nodeE, nodeF, "eEF");
+        graph.addEdge(nodeE, nodeE, "eEE");
     }
 
     @Test
     void breadthFirstSearchTest() {
-        BFSResult result = GraphProcedureUtils.breadthFirstSearch(graph, graph.findNode("A"), GraphMode.UNDIRECTED);
-        assertTrue(Collections.frequency(result.getVisitedNodes().values(), true) == 6);
+        BFSResult result = GraphProcedureUtils.breadthFirstSearch(graph, graph.findNode("A").getId(),
+                                                                  GraphMode.UNDIRECTED);
+        assertEquals(6, Collections.frequency(result.getVisitedNodes().values(), true));
     }
 
     @Test
     void getOpenNeighborhoodAsSubgraphTest() throws IOException {
-        BaseGraph openNeighborHoodA = GraphProcedureUtils.getOpenNeighborhoodAsSubgraph(graph, graph.findNode("B"), GraphMode.UNDIRECTED);
+        BaseGraph openNeighborHoodA = GraphProcedureUtils.getOpenNeighborhoodAsSubgraph(graph,
+                                                                                        graph.findNode("B").getId(),
+                                                                                        GraphMode.UNDIRECTED);
         String[] targetNodeLabels = new String[]{"A", "D", "C"};
-        assertTrue(openNeighborHoodA.getNumberOfNodes() == 3);
-        assertTrue(targetNodeLabels.length == openNeighborHoodA.getNodeLabels().length);
-        assertTrue(Arrays.equals(Arrays.stream(targetNodeLabels).sorted().toArray(), Arrays.stream(openNeighborHoodA.getNodeLabels()).sorted().toArray()));
+        assertEquals(3, openNeighborHoodA.getNumberOfNodes());
+        assertEquals(targetNodeLabels.length, openNeighborHoodA.getNodeLabels().length);
+        assertArrayEquals(Arrays.stream(targetNodeLabels).sorted().toArray(), Arrays.stream(
+                openNeighborHoodA.getNodeLabels()).sorted().toArray());
     }
 
     @Test
     void findComponentsUndirectedTest() {
-        ArrayList<BFSResult> components = GraphProcedureUtils.findComponentsUndirected(graph);
+        final List<BFSResult> components = GraphProcedureUtils.findComponentsUndirected(graph);
 
-        for(BFSResult component : components) {
+        for (BFSResult component : components) {
             System.out.println("###############################");
             System.out.println(component.getVisitedNodes().size() + " Node(s) in component");
-            for(long id : component.getVisitedNodes().keySet()) {
+            for (long id : component.getVisitedNodes().keySet()) {
                 System.out.println(graph.getNode(id).getLabel());
             }
             System.out.println("Traversal order:");
-            for(Edge path : component.getPaths()) {
-                System.out.println(path.getLabel());
+            for (final Long edgeId : component.getEdgePathIds()) {
+                System.out.println(graph.getEdgeLabel(edgeId));
             }
         }
 
-        assertTrue(components.size() == 2);
-        assertTrue(components.get(0).getVisitedNodes().size() == 6);
-        assertTrue(components.get(1).getVisitedNodes().size() == 1);
+        assertEquals(2, components.size());
+        assertEquals(6, components.get(0).getVisitedNodes().size());
+        assertEquals(1, components.get(1).getVisitedNodes().size());
     }
 
     @Test
@@ -93,9 +96,12 @@ class GraphProcedureUtilsTest {
         graph.addEdge(node3, node4, "e3-4");
         graph.addEdge(node4, node5, "e4-5");
         graph.addEdge(node4, node6, "e4-6");
-        BFSResult maximumConnectedComponent = GraphProcedureUtils.getMaximumConnectedComponent(graph, graph.findNode("5"), GraphMode.UNDIRECTED);
-        assertTrue(maximumConnectedComponent.getVisitedNodes().size() == 2);
-        assertTrue(maximumConnectedComponent.getPaths().size() == 1);
+        BFSResult maximumConnectedComponent = GraphProcedureUtils.getMaximumConnectedComponent(graph,
+                                                                                               graph.findNode("5")
+                                                                                                    .getId(),
+                                                                                               GraphMode.UNDIRECTED);
+        assertEquals(2, maximumConnectedComponent.getVisitedNodes().size());
+        assertEquals(1, maximumConnectedComponent.getEdgePathIds().size());
     }
 
 }
