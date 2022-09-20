@@ -40,7 +40,7 @@ public final class GraphProximityProcedures implements RegistryContainer {
             HashMap<Long, Long> distances = shortestPathFinder.dijkstra(merged, targetNode, isModified, labelDiseaseProteins);
             sum += Collections.min(distances.values());
         }
-        sum *= (1 / merged.getNumberOfNodes(labelTarget));
+        sum *= (1.0 / merged.getNumberOfNodes(labelTarget));
         final ResultSet result = new ResultSet("d_c");
         result.addRow(new ResultRow(new String[]{"d_c"}, new Object[]{sum}));
         return result;
@@ -67,9 +67,9 @@ public final class GraphProximityProcedures implements RegistryContainer {
                 sumShortestPaths += distance;
             }
             // ... and add result to outer sum
-            sum += (1 / merged.getNumberOfNodes(labelDiseaseProteins)) * sumShortestPaths;
+            sum += (1.0 / merged.getNumberOfNodes(labelDiseaseProteins)) * sumShortestPaths;
         }
-        sum *= (1 / merged.getNumberOfNodes(labelTarget));
+        sum *= (1.0 / merged.getNumberOfNodes(labelTarget));
         final ResultSet result = new ResultSet("d_s");
         result.addRow(new ResultRow(new String[]{"d_s"}, new Object[]{sum}));
         return result;
@@ -98,7 +98,7 @@ public final class GraphProximityProcedures implements RegistryContainer {
             // ... and add them to outer sum
             sum += Math.log(sumKernel);
         }
-        sum *= ((-1) / merged.getNumberOfNodes(labelTargets));
+        sum *= ((-1.0) / merged.getNumberOfNodes(labelTargets));
         final ResultSet result = new ResultSet("d_k");
         result.addRow(new ResultRow(new String[]{"d_k"}, new Object[]{sum}));
         return result;
@@ -160,7 +160,7 @@ public final class GraphProximityProcedures implements RegistryContainer {
         for(Node drugTarget : merged.getNodes(labelTargets)) {
             sum += shortestPathFinder.dijkstra(merged, centre, drugTarget).get(drugTarget.getId());
         }
-        sum *= 1 / merged.getNumberOfNodes(labelTargets);
+        sum *= 1.0 / merged.getNumberOfNodes(labelTargets);
 
         ResultSet result = new ResultSet("d_cc");
         result.addRow(new ResultRow(new String[]{"d_cc"}, new Object[]{sum}));
