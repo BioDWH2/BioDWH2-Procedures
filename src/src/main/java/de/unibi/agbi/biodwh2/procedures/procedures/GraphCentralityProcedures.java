@@ -27,7 +27,7 @@ public final class GraphCentralityProcedures implements RegistryContainer {
      * @param node Source node
      * @return Result set showing the node's ID and its degree
      */
-    @Procedure(name = "analysis.network.centrality.degree", signature = "TODO", description = "Calculates the degree of a graph node")
+    @Procedure(name = "analysis.network.centrality.degree", description = "Calculates the degree of a graph node")
     public static ResultSet degree(final BaseGraph graph, final Node node) {
         long degree = 0;
         long id = node.getId();
@@ -45,7 +45,7 @@ public final class GraphCentralityProcedures implements RegistryContainer {
      * @param node Source node
      * @return Result set containing the in degree and the node's id
      */
-    @Procedure(name = "analysis.network.centrality.degree.in", signature = "TODO", description = "Calculates the in degree for a node, i.e. all outgoing edges")
+    @Procedure(name = "analysis.network.centrality.degree.in", description = "Calculates the in degree for a node, i.e. all outgoing edges")
     public static  ResultSet degreeIn(final BaseGraph graph, final Node node) {
         long id = node.getId();
         long degreeIn = StreamSupport.stream(graph.findEdges(Edge.TO_ID_FIELD, id).spliterator(), false).count();
@@ -60,7 +60,7 @@ public final class GraphCentralityProcedures implements RegistryContainer {
      * @param node Source node
      * @return Result set containing the out degree and the node's id
      */
-    @Procedure(name = "analysis.network.centrality.degree.out", signature = "TODO", description = "Calculates the out degree for a node, i.e. all incoming edges")
+    @Procedure(name = "analysis.network.centrality.degree.out", description = "Calculates the out degree for a node, i.e. all incoming edges")
     public static  ResultSet degreeOut(final BaseGraph graph, final Node node) {
         long id = node.getId();
         long degreeOut = StreamSupport.stream(graph.findEdges(Edge.FROM_ID_FIELD, id).spliterator(), false).count();
@@ -78,7 +78,7 @@ public final class GraphCentralityProcedures implements RegistryContainer {
      * @param labels Restricts the closeness calculation to nodes with certain labels (optional parameter)
      * @return Result set showing the node's ID and its closeness value
      */
-    @Procedure(name = "analysis.network.centrality.closeness", signature = "TODO", description = "Calculates the closeness of a graph node")
+    @Procedure(name = "analysis.network.centrality.closeness", description = "Calculates the closeness of a graph node")
     public static ResultSet closeness(final BaseGraph graph, final Node node, final GraphMode mode, final String... labels) {
         double closeness = 0;
         final ShortestPathFinder shortestPathFinder = new ShortestPathFinder(graph, mode);
@@ -100,7 +100,7 @@ public final class GraphCentralityProcedures implements RegistryContainer {
      * @param mode Orientation of the graph
      * @return Result set containing the source node's id and its eccentricity value
      */
-    @Procedure(name = "analysis.network.centrality.eccentricity", signature = "TODO", description = "Calculates the eccentricity of a node")
+    @Procedure(name = "analysis.network.centrality.eccentricity", description = "Calculates the eccentricity of a node")
     public static ResultSet eccentricity(final BaseGraph graph, final Node node, final GraphMode mode) {
         final ShortestPathFinder shortestPathFinder = new ShortestPathFinder(graph, mode);
         final Map<Long, Long> distances = shortestPathFinder.dijkstra(node.getId(), false);
@@ -118,7 +118,7 @@ public final class GraphCentralityProcedures implements RegistryContainer {
      * @param mode Orientation of the graph
      * @return Result row containing the size of the maximum connected component
      */
-    @Procedure(name = "analysis.network.centrality.mnc", signature = "TODO", description = "Calculates the maximum neighborhood component for a node")
+    @Procedure(name = "analysis.network.centrality.mnc", description = "Calculates the maximum neighborhood component for a node")
     public static ResultSet maximumNeighborhoodComponent(final BaseGraph graph, final Node node, final GraphMode mode) throws IOException {
         BFSResult maximumConnectedComponent = GraphProcedureUtils.getMaximumConnectedComponent(graph, node.getId(), mode);
         ResultSet result = new ResultSet();
@@ -134,7 +134,7 @@ public final class GraphCentralityProcedures implements RegistryContainer {
      * @param epsilon
      * @return Result containing the node's id and the corresponding density of maximum neighborhood component
      */
-    @Procedure(name = "analysis.network.centrality.dmnc", signature = "TODO", description = "Calculates the density of the maximum neighborhood component for a node")
+    @Procedure(name = "analysis.network.centrality.dmnc", description = "Calculates the density of the maximum neighborhood component for a node")
     public static ResultSet densityOfMaximumNeighborhoodComponent(final BaseGraph graph, final Node node, final GraphMode mode, final double epsilon) throws IOException {
         BFSResult maximumConnectedComponent = GraphProcedureUtils.getMaximumConnectedComponent(graph, node.getId(), mode);
         double density = maximumConnectedComponent.getEdgePathIds().size() / Math.pow(maximumConnectedComponent.getVisitedNodes().size(), epsilon);
@@ -149,7 +149,7 @@ public final class GraphCentralityProcedures implements RegistryContainer {
      * @param node Target node
      * @return Result set containing the node's and its MCC score
      */
-    @Procedure(name = "analysis.network.centrality.mcc", signature = "TODO", description = "Calculates the maximal clique centrality of a given node")
+    @Procedure(name = "analysis.network.centrality.mcc", description = "Calculates the maximal clique centrality of a given node")
     public static ResultSet maximalCliqueCentrality(final BaseGraph graph, final Node node) {
         // find cliques in graph
         GraphCliqueFinder graphCliqueFinder = new GraphCliqueFinder(graph);

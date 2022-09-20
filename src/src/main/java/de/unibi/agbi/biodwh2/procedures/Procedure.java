@@ -8,10 +8,6 @@ import java.lang.annotation.*;
 public @interface Procedure {
     String name() default "";
 
-    String signature() default "";
-
     String description() default "";
-
-    // TODO: mode?
 }
 

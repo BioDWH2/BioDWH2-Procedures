@@ -8,8 +8,6 @@ import java.lang.annotation.*;
 public @interface Function {
     String name() default "";
 
-    String signature() default "";
-
     String description() default "";
 }
 
