@@ -43,6 +43,11 @@ class RegistryTest {
                 "registry.test.testArguments");
         assertNotNull(definition);
         assertEquals(18, definition.argumentNames.length);
+        assertArrayEquals(new String[]{
+                "testBool1", "testBool2", "testByte1", "testByte2", "testShort1", "testShort2", "testInt1", "testInt2",
+                "testLong1", "testLong2", "testFloat1", "testFloat2", "testDouble1", "testDouble2", "testString1",
+                "testString2", "testNode", "testEdge"
+        }, definition.argumentNames);
         assertArrayEquals(new Registry.ArgumentType[]{
                 Registry.ArgumentType.Bool, Registry.ArgumentType.Bool, Registry.ArgumentType.Int,
                 Registry.ArgumentType.Int, Registry.ArgumentType.Int, Registry.ArgumentType.Int,
