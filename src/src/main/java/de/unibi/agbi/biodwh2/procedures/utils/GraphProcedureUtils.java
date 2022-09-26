@@ -20,8 +20,6 @@ public class GraphProcedureUtils {
      * Performs a breadth-first search in the course of which all connected nodes starting from a single source are
      * marked as visited.
      * <p>
-     * TODO: use nodes instead of their ids for queue and implement comparable in node
-     *
      * @param graph       The graph in which the source node resides
      * @param startNodeId Node from which the search is initiated
      */
@@ -71,6 +69,10 @@ public class GraphProcedureUtils {
         return new BFSResult(filterOnlyVisited, edgePathIds);
     }
 
+    public static BFSResult breadthFirstSearch(final BaseGraph graph, final long[] nodeIds, final GraphMode mode) {
+        throw new UnsupportedOperationException("Not yet implemented!");
+    }
+
     /**
      * Collects all adjacent neighbors for a node.
      *
@@ -95,7 +97,9 @@ public class GraphProcedureUtils {
     }
 
     /**
-     * Creates a subgraph from the open neighborhood of a source node v, i.e. the subgraph of all nodes adjacent to v.
+     * Creates a subgraph from the open neighborhood of a source node, i.e. the subgraph of all nodes adjacent to the node.
+     * The induced subgraph contains all neighbors of the source node, but not the source node itself, as well as all
+     * edges connecting node pairs in the neighborhood.
      *
      * @param graph  Graph in which the node resides
      * @param nodeId Source node (not included in result)
@@ -105,35 +109,41 @@ public class GraphProcedureUtils {
     public static BaseGraph getOpenNeighborhoodAsSubgraph(final BaseGraph graph, final long nodeId, final GraphMode mode) throws IOException {
 
         final Graph openNeighborhoodSubgraph = Graph.createTempGraph();
+        ArrayList<Long> ids = new ArrayList<>();
 
-        // gather all outgoing nodes
+        // gather all neighbor nodes from outgoing edges
         final Iterable<Edge> outDegrees = graph.findEdges(Edge.FROM_ID_FIELD, nodeId);
         for (final Edge edge : outDegrees) {
-            //openNeighborhoodSubgraph.update(edge);
-            openNeighborhoodSubgraph.update(graph.getNode(edge.getProperty(Edge.TO_ID_FIELD)));
+            if(!edge.getToId().equals(nodeId)) {
+                openNeighborhoodSubgraph.update(graph.getNode(edge.getProperty(Edge.TO_ID_FIELD)));
+                ids.add(edge.getProperty(Edge.TO_ID_FIELD));
+            }
         }
 
-        // gather all incoming nodes (undirected graphs only)
+        // gather all neighbor nodes from incoming edges (undirected graphs only)
         if (mode.equals(GraphMode.UNDIRECTED)) {
             final Iterable<Edge> inDegrees = graph.findEdges(Edge.TO_ID_FIELD, nodeId);
             for (final Edge edge : inDegrees) {
-                //openNeighborhoodSubgraph.update(edge);
-                openNeighborhoodSubgraph.update(graph.getNode(edge.getProperty(Edge.FROM_ID_FIELD)));
+                if(!edge.getFromId().equals(nodeId)) {
+                    openNeighborhoodSubgraph.update(graph.getNode(edge.getProperty(Edge.FROM_ID_FIELD)));
+                    ids.add(edge.getProperty(Edge.FROM_ID_FIELD));
+                }
             }
         }
 
-        for (final Node neighbor : openNeighborhoodSubgraph.getNodes()) {
-            final Edge edgeIn = graph.findEdge(Edge.TO_ID_FIELD, neighbor.getId());
-            if (edgeIn != null) {
-                openNeighborhoodSubgraph.update(edgeIn);
-            }
-            if (mode.equals(GraphMode.UNDIRECTED)) {
-                final Edge edgeOut = graph.findEdge(Edge.FROM_ID_FIELD, neighbor.getId());
-                if (edgeOut != null) {
+        // For each node pair in open neighborhood: Check whether there is a connecting edge between the two nodes and add it accordingly
+        for(Node node : openNeighborhoodSubgraph.getNodes()) {
+            long currentNodeId = node.getId();
+            for(long candidateID : ids) {
+                Edge edgeIn = graph.findEdge(Edge.FROM_ID_FIELD, candidateID, Edge.TO_ID_FIELD, currentNodeId);
+                if(edgeIn != null) {
+                    openNeighborhoodSubgraph.update(edgeIn);
+                }
+                Edge edgeOut = graph.findEdge(Edge.TO_ID_FIELD, candidateID, Edge.FROM_ID_FIELD, currentNodeId);
+                if(edgeOut != null) {
                     openNeighborhoodSubgraph.update(edgeOut);
                 }
             }
-
         }
         return openNeighborhoodSubgraph;
     }

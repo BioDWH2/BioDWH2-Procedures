@@ -54,6 +54,7 @@ class GraphProcedureUtilsTest {
                                                                                         GraphMode.UNDIRECTED);
         String[] targetNodeLabels = new String[]{"A", "D", "C"};
         assertEquals(3, openNeighborHoodA.getNumberOfNodes());
+        assertEquals(0, openNeighborHoodA.getNumberOfEdges());
         assertEquals(targetNodeLabels.length, openNeighborHoodA.getNodeLabels().length);
         assertArrayEquals(Arrays.stream(targetNodeLabels).sorted().toArray(), Arrays.stream(
                 openNeighborHoodA.getNodeLabels()).sorted().toArray());
