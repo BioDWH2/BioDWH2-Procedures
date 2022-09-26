@@ -174,7 +174,7 @@ class GraphCentralityProceduresTest {
         final ResultSet result = GraphCentralityProcedures.densityOfMaximumNeighborhoodComponent(graph, sourceNode,
                                                                                                  GraphMode.UNDIRECTED,
                                                                                                  1.7);
-        assertEquals(0.3077861033362291, (double) result.getRow(0).getValue(1));
+        assertEquals(0.3077861033362291, result.getRow(0).getValue(1));
     }
 
     @Test
