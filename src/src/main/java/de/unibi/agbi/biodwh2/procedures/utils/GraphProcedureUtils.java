@@ -69,10 +69,6 @@ public class GraphProcedureUtils {
         return new BFSResult(filterOnlyVisited, edgePathIds);
     }
 
-    public static BFSResult breadthFirstSearch(final BaseGraph graph, final long[] nodeIds, final GraphMode mode) {
-        throw new UnsupportedOperationException("Not yet implemented!");
-    }
-
     /**
      * Collects all adjacent neighbors for a node.
      *
@@ -179,9 +175,8 @@ public class GraphProcedureUtils {
     /**
      * Extracts all connected components from a graph using the breadth-first search (BFS). Note that each search
      * reveals exactly one connected component and no component occurs twice.
-     *
-     * @param graph Graph that is supposed to be divided into components
-     * @return List of all BFS results containing the node IDs and edges of the components
+     * @param graph Graph that is supposed to be scanned for components
+     * @return List of all BFS results containing the node IDs and edges of the distinct components
      */
     public static List<BFSResult> findComponentsUndirected(final BaseGraph graph) {
 
@@ -193,6 +188,40 @@ public class GraphProcedureUtils {
         for (final Node node : graph.getNodes()) {
             nodesToVisit.add(node.getId());
             nodesVisitedInfo.put(node.getId(), false);
+        }
+
+        while (!nodesToVisit.isEmpty()) {
+            final Long currentNodeId = nodesToVisit.poll();
+            if (!nodesVisitedInfo.get(currentNodeId)) {
+                // do bfs if node has not been visited yet
+                BFSResult result = GraphProcedureUtils.breadthFirstSearch(graph, currentNodeId, GraphMode.UNDIRECTED);
+                results.add(result);
+                // mark all nodes that were visited in course of this search
+                for (final long id : result.getVisitedNodes().keySet()) {
+                    nodesVisitedInfo.put(id, true);
+                }
+            }
+        }
+        return results;
+    }
+
+    /**
+     * Extracts all connected components from a graph using the breadth-first search (BFS) and a list of
+     * seed nodes. Note that each search reveals exactly one connected component and no component occurs twice.
+     * @param graph Graph that is supposed to be scanned for components
+     * @param seedNodeIds List of source nodes to start the BFS from
+     * @return List of all BFS results containing the node IDs and edges of the distinct components
+     */
+    public static List<BFSResult> findComponentsUndirected(final BaseGraph graph, final List<Long> seedNodeIds) {
+
+        final List<BFSResult> results = new ArrayList<>();
+        final Map<Long, Boolean> nodesVisitedInfo = new HashMap<>();
+        final Queue<Long> nodesToVisit = new PriorityQueue<>();
+
+        // enqueue all seed nodes and mark them as unvisited
+        for(final long id : seedNodeIds) {
+            nodesToVisit.add(id);
+            nodesVisitedInfo.put(id, false);
         }
 
         while (!nodesToVisit.isEmpty()) {

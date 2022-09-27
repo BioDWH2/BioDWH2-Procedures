@@ -82,6 +82,29 @@ class GraphProcedureUtilsTest {
     }
 
     @Test
+    void findComponentsUndirectedWithMultipleSourcesTest() throws IOException {
+        Graph graph = Graph.createTempGraph();
+        Node node1 = graph.addNode("1");
+        Node node2 = graph.addNode("2");
+        Node node3 = graph.addNode("3");
+        Node node4 = graph.addNode("4");
+        Node node5 = graph.addNode("5");
+        Node node6 = graph.addNode("6");
+        Node node7 = graph.addNode("7");
+        graph.addEdge(node1, node2, "e1-2");
+        graph.addEdge(node1, node3, "e1-3");
+        graph.addEdge(node1, node4, "e1-4");
+        graph.addEdge(node3, node4, "e3-4");
+        graph.addEdge(node5, node6, "e5-6");
+
+        final List<Long> ids = Arrays.asList(graph.findNode("1").getId(), graph.findNode("4").getId(), graph.findNode("7").getId());
+        final List<BFSResult> components = GraphProcedureUtils.findComponentsUndirected(graph, ids);
+        assertEquals(2, components.size());
+        assertEquals(4, components.get(0).getVisitedNodes().size());
+        assertEquals(1, components.get(1).getVisitedNodes().size());
+    }
+
+    @Test
     void getMaximumConnectedComponentTest() throws IOException {
         Graph graph = Graph.createTempGraph();
         Node node1 = graph.addNode("1");
