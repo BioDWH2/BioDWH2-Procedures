@@ -55,6 +55,6 @@ class RegistryTest {
                 Registry.ArgumentType.Int, Registry.ArgumentType.Float, Registry.ArgumentType.Float,
                 Registry.ArgumentType.Float, Registry.ArgumentType.Float, Registry.ArgumentType.String,
                 Registry.ArgumentType.String, Registry.ArgumentType.Node, Registry.ArgumentType.Edge
-        }, definition.argumentTypes);
+        }, definition.argumentSimpleTypes);
     }
 }

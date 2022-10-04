@@ -128,7 +128,8 @@ public final class Registry {
         public final String signature;
         public final String description;
         public final String[] argumentNames;
-        public final ArgumentType[] argumentTypes;
+        public final Class<?>[] argumentTypes;
+        public final ArgumentType[] argumentSimpleTypes;
         final Method method;
 
         protected MethodDefinition(final String name, final String description, final Method method) {
@@ -136,13 +137,14 @@ public final class Registry {
             this.description = description;
             this.method = method;
             argumentNames = new String[method.getParameterCount() - 1];
-            argumentTypes = new ArgumentType[argumentNames.length];
+            argumentTypes = new Class<?>[argumentNames.length];
+            argumentSimpleTypes = new ArgumentType[argumentNames.length];
             final StringBuilder signature = new StringBuilder();
             for (int i = 0; i < argumentNames.length; i++) {
                 final Parameter parameter = method.getParameters()[i + 1];
-                // TODO: only returns arg1, arg2, ... unless compiled with "-arguments"
                 argumentNames[i] = parameter.getName();
-                argumentTypes[i] = getType(parameter.getType());
+                argumentTypes[i] = parameter.getType();
+                argumentSimpleTypes[i] = getType(parameter.getType());
                 if (i > 0)
                     signature.append(", ");
                 signature.append(argumentNames[i]).append(": ").append(argumentTypes[i]);
@@ -168,6 +170,8 @@ public final class Registry {
                 return ArgumentType.Node;
             if (type.equals(Edge.class))
                 return ArgumentType.Edge;
+            if (type.isEnum())
+                return ArgumentType.Enum;
             return ArgumentType.Object;
         }
     }
@@ -191,6 +195,7 @@ public final class Registry {
         String,
         Node,
         Edge,
+        Enum,
         Object
     }
 }
