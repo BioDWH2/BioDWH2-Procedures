@@ -122,7 +122,7 @@ public final class GraphCentralityProcedures implements RegistryContainer {
     public static ResultSet maximumNeighborhoodComponent(final BaseGraph graph, final Node node, final GraphMode mode) throws IOException {
         BFSResult maximumConnectedComponent = GraphProcedureUtils.getMaximumConnectedComponent(graph, node.getId(), mode);
         ResultSet result = new ResultSet();
-        result.addRow(new ResultRow(new String[]{"id", "mnc"}, new Object[]{node.getId(), maximumConnectedComponent.getVisitedNodes().size()}));
+        result.addRow(new ResultRow(new String[]{"id", "mnc"}, new Object[]{node.getId(), maximumConnectedComponent.getNodeIds().size()}));
         return result;
     }
 
@@ -137,7 +137,7 @@ public final class GraphCentralityProcedures implements RegistryContainer {
     @Procedure(name = "analysis.network.centrality.dmnc", description = "Calculates the density of the maximum neighborhood component for a node")
     public static ResultSet densityOfMaximumNeighborhoodComponent(final BaseGraph graph, final Node node, final GraphMode mode, final double epsilon) throws IOException {
         BFSResult maximumConnectedComponent = GraphProcedureUtils.getMaximumConnectedComponent(graph, node.getId(), mode);
-        double density = maximumConnectedComponent.getEdgePathIds().size() / Math.pow(maximumConnectedComponent.getVisitedNodes().size(), epsilon);
+        double density = maximumConnectedComponent.getEdgePathIds().size() / Math.pow(maximumConnectedComponent.getNodeIds().size(), epsilon);
         ResultSet result = new ResultSet();
         result.addRow(new ResultRow(new String[]{"id", "dmnc"}, new Object[]{node.getId(), density}));
         return result;

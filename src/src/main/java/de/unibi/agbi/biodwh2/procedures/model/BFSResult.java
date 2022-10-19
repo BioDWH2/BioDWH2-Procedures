@@ -1,7 +1,6 @@
 package de.unibi.agbi.biodwh2.procedures.model;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * Contains a result of a breadth first search, i.e. the nodes that have been visited as well as all paths that have
@@ -10,23 +9,20 @@ import java.util.Map;
 public class BFSResult {
 
     /**
-     * All nodes that have been traversed in course of the search.
-     */
-    private final Map<Long, Boolean> visitedNodes;
-    /**
      * All edge paths in order of traversal
      */
     private final List<Long> edgePathIds;
+    /**
+     * All nodes that were visited in the course of bfs.
+     */
+    private final List<Long> nodeIds;
 
-    public BFSResult(final Map<Long, Boolean> visitedNodes, final List<Long> edgePathIds) {
-        this.visitedNodes = visitedNodes;
+    public BFSResult(final List<Long> edgePathIds, final List<Long> nodeIds) {
         this.edgePathIds = edgePathIds;
+        this.nodeIds = nodeIds;
     }
 
-    public Map<Long, Boolean> getVisitedNodes() {
-        return visitedNodes;
-    }
-
+    public List<Long> getNodeIds() { return nodeIds; }
     public List<Long> getEdgePathIds() {
         return edgePathIds;
     }

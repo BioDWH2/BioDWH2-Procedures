@@ -2,10 +2,16 @@ package de.unibi.agbi.biodwh2.procedures.procedures;
 
 import de.unibi.agbi.biodwh2.core.model.graph.Graph;
 import de.unibi.agbi.biodwh2.core.model.graph.Node;
+import de.unibi.agbi.biodwh2.procedures.ResultSet;
+import de.unibi.agbi.biodwh2.procedures.model.GraphMode;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 
 import java.io.IOException;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class GraphProximityProceduresTest {
@@ -20,14 +26,36 @@ class GraphProximityProceduresTest {
         diseaseProteins = Graph.createTempGraph();
         merged = Graph.createTempGraph();
 
-        Node a1 = merged.addNode("A");
-        Node b1 = merged.addNode("B");
-        Node b2 = merged.addNode("B");
+        Node a = merged.addNode("A");
+        Node b = merged.addNode("B");
         Node c = merged.addNode("C");
+        Node d = merged.addNode("D");
+        Node e = merged.addNode("E");
 
-        merged.addEdge(a1, b1, "a1b1");
-        merged.addEdge(a1, c, "a1c");
-        merged.addEdge(c, b2, "cb2");
+        merged.addEdge(a, b, "a|b");
+        merged.addEdge(a, c, "a|c");
+        merged.addEdge(b, c, "b|c");
+        merged.addEdge(b, d, "b|d");
+        merged.addEdge(b, e, "b|e");
+    }
+
+    @Test
+    void testCentre() {
+        HashMap<Long, Double> closenessCentralities = new HashMap<>();
+        for(Node node : merged.getNodes()) {
+            ResultSet result = GraphCentralityProcedures.closeness(merged, node, GraphMode.UNDIRECTED);
+            closenessCentralities.put(node.getId(), (double) result.getRow(0).getValue(1));
+        }
+        Long id = Collections.max(closenessCentralities.entrySet(), Map.Entry.comparingByValue()).getKey();
+
     }
 
 }
+
+
+
+
+
+
+
+

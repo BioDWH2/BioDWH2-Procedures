@@ -44,7 +44,7 @@ class GraphProcedureUtilsTest {
     void breadthFirstSearchTest() {
         BFSResult result = GraphProcedureUtils.breadthFirstSearch(graph, graph.findNode("A").getId(),
                                                                   GraphMode.UNDIRECTED);
-        assertEquals(6, Collections.frequency(result.getVisitedNodes().values(), true));
+        assertEquals(6, result.getNodeIds().size());
     }
 
     @Test
@@ -66,8 +66,8 @@ class GraphProcedureUtilsTest {
 
         for (BFSResult component : components) {
             System.out.println("###############################");
-            System.out.println(component.getVisitedNodes().size() + " Node(s) in component");
-            for (long id : component.getVisitedNodes().keySet()) {
+            System.out.println(component.getNodeIds().size() + " Node(s) in component");
+            for (long id : component.getNodeIds()) {
                 System.out.println(graph.getNode(id).getLabel());
             }
             System.out.println("Traversal order:");
@@ -77,8 +77,8 @@ class GraphProcedureUtilsTest {
         }
 
         assertEquals(2, components.size());
-        assertEquals(6, components.get(0).getVisitedNodes().size());
-        assertEquals(1, components.get(1).getVisitedNodes().size());
+        assertEquals(6, components.get(0).getNodeIds().size());
+        assertEquals(1, components.get(1).getNodeIds().size());
     }
 
     @Test
@@ -100,8 +100,8 @@ class GraphProcedureUtilsTest {
         final List<Long> ids = Arrays.asList(graph.findNode("1").getId(), graph.findNode("4").getId(), graph.findNode("7").getId());
         final List<BFSResult> components = GraphProcedureUtils.findComponentsUndirected(graph, ids);
         assertEquals(2, components.size());
-        assertEquals(4, components.get(0).getVisitedNodes().size());
-        assertEquals(1, components.get(1).getVisitedNodes().size());
+        assertEquals(4, components.get(0).getNodeIds().size());
+        assertEquals(1, components.get(1).getNodeIds().size());
     }
 
     @Test
@@ -124,7 +124,7 @@ class GraphProcedureUtilsTest {
                                                                                                graph.findNode("5")
                                                                                                     .getId(),
                                                                                                GraphMode.UNDIRECTED);
-        assertEquals(2, maximumConnectedComponent.getVisitedNodes().size());
+        assertEquals(2, maximumConnectedComponent.getNodeIds().size());
         assertEquals(1, maximumConnectedComponent.getEdgePathIds().size());
     }
 

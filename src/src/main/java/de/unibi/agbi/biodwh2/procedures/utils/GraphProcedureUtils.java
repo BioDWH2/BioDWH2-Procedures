@@ -43,30 +43,40 @@ public class GraphProcedureUtils {
             final long currentNodeId = queue.poll();
             final List<Long> neighbors = GraphProcedureUtils.getNeighbors(graph, currentNodeId, mode);
             for (final Long neighborId : neighbors) {
+
                 // if neighbor has not yet been visited -> visit neighbor and mark it accordingly
                 final Boolean isVisited = visited.get(neighborId);
-                if (isVisited == null || !isVisited) {
-
-                    // find path that was used to traverse from the current node to its neighbor
-                    Edge edge = graph.findEdge(Edge.FROM_ID_FIELD, currentNodeId, Edge.TO_ID_FIELD, neighborId);
-                    if (edge == null && mode.equals(GraphMode.UNDIRECTED)) {
-                        edge = graph.findEdge(Edge.FROM_ID_FIELD, neighborId, Edge.TO_ID_FIELD, currentNodeId);
-                    }
-                    if (edge != null) {
-                        edgePathIds.add(edge.getId());
-                    }
-
+                if (!isVisited) {
                     visited.put(neighborId, true);
                     queue.add(neighborId);
+                }
+
+                // collect edge paths between current node and each neighbor
+                Edge edgeOut = graph.findEdge(Edge.FROM_ID_FIELD, currentNodeId, Edge.TO_ID_FIELD, neighborId);
+                if(edgeOut != null) {
+                    if(!edgePathIds.contains(edgeOut.getId())) {
+                        edgePathIds.add(edgeOut.getId());
+                    }
+                }
+                if(mode == GraphMode.UNDIRECTED) {
+                    Edge edgeIn = graph.findEdge(Edge.FROM_ID_FIELD, neighborId, Edge.TO_ID_FIELD, currentNodeId);
+                    if(edgeIn != null) {
+                        if(!edgePathIds.contains(edgeIn.getId())) {
+                            edgePathIds.add(edgeIn.getId());
+                        }
+                    }
                 }
             }
         }
 
-        // only include visited nodes in result
-        final Map<Long, Boolean> filterOnlyVisited = visited.entrySet().stream().filter(Map.Entry::getValue).collect(
-                Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+        ArrayList<Long> nodeIds = new ArrayList<>();
+        for (Map.Entry<Long, Boolean> entry : visited.entrySet()) {
+            if(entry.getValue()) {
+                nodeIds.add(entry.getKey());
+            }
+        }
 
-        return new BFSResult(filterOnlyVisited, edgePathIds);
+        return new BFSResult(edgePathIds, nodeIds);
     }
 
     /**
@@ -163,7 +173,7 @@ public class GraphProcedureUtils {
         BFSResult largest = null;
         // compare number of nodes in components
         for (final BFSResult component : neighborHoodComponents) {
-            int componentSize = component.getVisitedNodes().size();
+            int componentSize = component.getNodeIds().size();
             if (componentSize > size) {
                 size = componentSize;
                 largest = component;
@@ -197,7 +207,7 @@ public class GraphProcedureUtils {
                 BFSResult result = GraphProcedureUtils.breadthFirstSearch(graph, currentNodeId, GraphMode.UNDIRECTED);
                 results.add(result);
                 // mark all nodes that were visited in course of this search
-                for (final long id : result.getVisitedNodes().keySet()) {
+                for (final long id : result.getNodeIds()) {
                     nodesVisitedInfo.put(id, true);
                 }
             }
@@ -231,7 +241,7 @@ public class GraphProcedureUtils {
                 BFSResult result = GraphProcedureUtils.breadthFirstSearch(graph, currentNodeId, GraphMode.UNDIRECTED);
                 results.add(result);
                 // mark all nodes that were visited in course of this search
-                for (final long id : result.getVisitedNodes().keySet()) {
+                for (final long id : result.getNodeIds()) {
                     nodesVisitedInfo.put(id, true);
                 }
             }
