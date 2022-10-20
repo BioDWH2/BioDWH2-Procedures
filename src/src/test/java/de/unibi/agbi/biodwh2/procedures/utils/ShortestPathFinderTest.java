@@ -2,6 +2,7 @@ package de.unibi.agbi.biodwh2.procedures.utils;
 
 import de.unibi.agbi.biodwh2.core.model.graph.Graph;
 import de.unibi.agbi.biodwh2.core.model.graph.Node;
+import de.unibi.agbi.biodwh2.procedures.model.DijkstraResult;
 import de.unibi.agbi.biodwh2.procedures.model.GraphMode;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -44,29 +45,29 @@ class ShortestPathFinderTest {
     void dijkstraSourceTargetTest() {
         final Node source = graph.findNode("A");
         final Node target = graph.findNode("D");
-        final Map<Long, Long> distances = shortestPathFinder.dijkstra(source.getId(), target.getId());
-        assertEquals(1, distances.size());
-        assertEquals(2, (long) distances.get(target.getId()));
+        final DijkstraResult result = shortestPathFinder.dijkstra(source.getId(), target.getId());
+        assertEquals(1, result.getDistances().size());
+        assertEquals(2, (long) result.getDistances().get(target.getId()));
     }
 
     @Test
     void dijkstraMultiTargetTestWithSelfToZero() {
         final Node source = graph.findNode("A");
-        final Map<Long, Long> distances = shortestPathFinder.dijkstra(source.getId(), false);
-        assertEquals(0, (long) distances.get(graph.findNode("A").getId()));
-        assertEquals(2, (long) distances.get(graph.findNode("D").getId()));
-        assertEquals(3, (long) distances.get(graph.findNode("F").getId()));
-        assertEquals(Long.MAX_VALUE, (long) distances.get(graph.findNode("G").getId()));
+        final DijkstraResult dijkstraResult = shortestPathFinder.dijkstra(source.getId(), false);
+        assertEquals(0, (long) dijkstraResult.getDistances().get(graph.findNode("A").getId()));
+        assertEquals(2, (long) dijkstraResult.getDistances().get(graph.findNode("D").getId()));
+        assertEquals(3, (long) dijkstraResult.getDistances().get(graph.findNode("F").getId()));
+        assertEquals(Long.MAX_VALUE, (long) dijkstraResult.getDistances().get(graph.findNode("G").getId()));
     }
 
     @Test
     void dijkstraMultiTargetTestWithSelfToInfinity() {
         final Node source = graph.findNode("A");
-        final Map<Long, Long> distances = shortestPathFinder.dijkstra(source.getId(), true);
-        assertEquals(Long.MAX_VALUE, (long) distances.get(graph.findNode("A").getId()));
-        assertEquals(2, (long) distances.get(graph.findNode("D").getId()));
-        assertEquals(3, (long) distances.get(graph.findNode("F").getId()));
-        assertEquals(Long.MAX_VALUE, (long) distances.get(graph.findNode("G").getId()));
+        final DijkstraResult dijkstraResult = shortestPathFinder.dijkstra(source.getId(), true);
+        assertEquals(Long.MAX_VALUE, (long) dijkstraResult.getDistances().get(graph.findNode("A").getId()));
+        assertEquals(2, (long) dijkstraResult.getDistances().get(graph.findNode("D").getId()));
+        assertEquals(3, (long) dijkstraResult.getDistances().get(graph.findNode("F").getId()));
+        assertEquals(Long.MAX_VALUE, (long) dijkstraResult.getDistances().get(graph.findNode("G").getId()));
     }
 
 }

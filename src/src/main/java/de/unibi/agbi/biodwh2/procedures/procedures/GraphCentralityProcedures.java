@@ -8,6 +8,7 @@ import de.unibi.agbi.biodwh2.procedures.RegistryContainer;
 import de.unibi.agbi.biodwh2.procedures.ResultRow;
 import de.unibi.agbi.biodwh2.procedures.ResultSet;
 import de.unibi.agbi.biodwh2.procedures.model.BFSResult;
+import de.unibi.agbi.biodwh2.procedures.model.DijkstraResult;
 import de.unibi.agbi.biodwh2.procedures.model.GraphMode;
 import de.unibi.agbi.biodwh2.procedures.utils.*;
 
@@ -82,9 +83,9 @@ public final class GraphCentralityProcedures implements RegistryContainer {
     public static ResultSet closeness(final BaseGraph graph, final Node node, final GraphMode mode, final String... labels) {
         double closeness = 0;
         final ShortestPathFinder shortestPathFinder = new ShortestPathFinder(graph, mode);
-        final Map<Long, Long> distances = shortestPathFinder.dijkstra(node.getId(), false, labels);
-        distances.remove(node.getId());
-        for(long distance : distances.values()) {
+        final DijkstraResult dijkstraResult = shortestPathFinder.dijkstra(node.getId(), false, labels);
+        dijkstraResult.getDistances().remove(node.getId());
+        for(long distance : dijkstraResult.getDistances().values()) {
             closeness += distance;
         }
         closeness =  (graph.getNumberOfNodes() - 1) / closeness;
@@ -103,8 +104,8 @@ public final class GraphCentralityProcedures implements RegistryContainer {
     @Procedure(name = "analysis.network.centrality.eccentricity", description = "Calculates the eccentricity of a node")
     public static ResultSet eccentricity(final BaseGraph graph, final Node node, final GraphMode mode) {
         final ShortestPathFinder shortestPathFinder = new ShortestPathFinder(graph, mode);
-        final Map<Long, Long> distances = shortestPathFinder.dijkstra(node.getId(), false);
-        double eccentricity = (1.0 / Collections.max(distances.values()));
+        final DijkstraResult dijkstraResult = shortestPathFinder.dijkstra(node.getId(), false);
+        double eccentricity = (1.0 / Collections.max(dijkstraResult.getDistances().values()));
         ResultSet result = new ResultSet();
         result.addRow(new ResultRow(new String[]{"id", "eccentricity"}, new Object[]{node.getId(), eccentricity}));
         return result;
