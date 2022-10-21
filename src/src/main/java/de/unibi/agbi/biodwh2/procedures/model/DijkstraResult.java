@@ -28,15 +28,6 @@ public class DijkstraResult {
         this.path = path;
     }
 
-    /**
-     * Determines whether a node lies on a path revealed by Dijkstra. Only returns true, if
-     * the node in question is neither the last nor the first node on the path
-     * @param nodeId ID of the specified node
-     */
-    public boolean pathPassesTroughNode(long nodeId) {
-        return path.contains(nodeId) && path.get(0) != nodeId && path.get(path.size() - 1) != nodeId;
-    }
-
     public Map<Long, Long> getDistances() { return distances; }
     public ArrayList<Long> getPath() { return path; }
 

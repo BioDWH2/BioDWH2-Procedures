@@ -203,6 +203,29 @@ public class ShortestPathFinder {
     }
 
     /**
+     * Determines whether a node lies on a path revealed by Dijkstra. Only returns true, if
+     * the node in question is not the endpoint
+     * @param nodeId ID of the specified node
+     */
+    public static boolean pathPassesTroughNode(ArrayList<Long> path, long nodeId) {
+        return path.contains(nodeId) && !Objects.equals(path.get(path.size() - 1), nodeId);
+    }
+
+    /**
+     * Counts how many paths have a given node on them.
+     * @param paths List of paths to check
+     * @param nodeId Target node
+     */
+    public static long countPathsWithNodeAsWaypoint(ArrayList<ArrayList<Long>> paths, long nodeId) {
+        int count = 0;
+        for(ArrayList<Long> path : paths) {
+            if(ShortestPathFinder.pathPassesTroughNode(path, nodeId))
+                count++;
+        }
+        return count;
+    }
+
+    /**
      * Recursively constructs a path from a source node to a target node by ordering all predecessor nodes
      * for the target node.
      * @param predecessors Map holding all pairs node -> predecessor
