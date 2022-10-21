@@ -6,6 +6,7 @@ import de.unibi.agbi.biodwh2.procedures.model.DijkstraResult;
 import de.unibi.agbi.biodwh2.procedures.model.DistancePair;
 import de.unibi.agbi.biodwh2.procedures.model.GraphMode;
 
+import java.sql.Array;
 import java.util.*;
 
 /**
@@ -140,6 +141,68 @@ public class ShortestPathFinder {
     }
 
     /**
+     * Modified version of dijkstra's algorithm to find all possible shortest paths between a source node and a target node.
+     * @param sourceNodeId Source node ID
+     * @param targetNodeId Target node ID
+     * @return A list consisting of multiple paths (= lists containing the IDs of all nodes on the path)
+     */
+    public ArrayList<ArrayList<Long>> findAllShortestPaths(final long sourceNodeId, final long targetNodeId) {
+
+        Map<Long, Long> distances = new HashMap<>();
+        Map<Long, ArrayList<Long>> parents = new HashMap<>();
+
+        // distance = 0 and no parent nodes for source node
+        distances.put(sourceNodeId, 0L);
+        ArrayList<Long> parentsSource = new ArrayList<>();
+        parentsSource.add(- 1L);
+        parents.put(sourceNodeId, parentsSource);
+
+        // initialize distances and parents lists for other nodes
+        for(final Node node : graph.getNodes()) {
+            if(!Objects.equals(node.getId(), sourceNodeId)) {
+                distances.put(node.getId(), Long.MAX_VALUE);
+                parents.put(node.getId(), new ArrayList<>());
+            }
+        }
+
+        final PriorityQueue<DistancePair> queue = new PriorityQueue<>();
+        queue.add(new DistancePair(sourceNodeId, 0));
+
+        while(!queue.isEmpty()) {
+
+            final DistancePair current = queue.poll();
+            long currentNodeId = current.getNodeId();
+            long currentDistance = current.getDistance();
+            final List<Long> neighbors = GraphProcedureUtils.getNeighbors(graph, currentNodeId, mode);
+
+            for(long neighborId : neighbors) {
+                if(distances.get(neighborId) > (currentDistance + 1)) {
+                    // unique shortest path was found
+                    distances.put(neighborId, currentDistance + 1);
+                    queue.add(new DistancePair(neighborId, distances.get(neighborId)));
+                    ArrayList<Long> parentsNeighbor = parents.get(neighborId);
+                    parentsNeighbor.clear();
+                    parentsNeighbor.add(currentNodeId);
+                    parents.put(neighborId, parentsNeighbor);
+                } else if(distances.get(neighborId) == (currentDistance + 1)) {
+                    // path with equal cost was found (-> not unique)
+                    ArrayList<Long> parentsNeighbor = parents.get(neighborId);
+                    parentsNeighbor.add(currentNodeId);
+                    parents.put(neighborId, parentsNeighbor);
+                }
+            }
+        }
+
+        // Construct list of possible paths from source to target
+        ArrayList<ArrayList<Long>> paths = new ArrayList<>();
+        constructNestedPaths(paths, targetNodeId, parents, new ArrayList<>());
+        for(ArrayList<Long> path : paths) {
+            Collections.reverse(path);
+        }
+        return paths;
+    }
+
+    /**
      * Recursively constructs a path from a source node to a target node by ordering all predecessor nodes
      * for the target node.
      * @param predecessors Map holding all pairs node -> predecessor
@@ -156,6 +219,21 @@ public class ShortestPathFinder {
             path.add(0, nodeId);
         }
         return path;
+    }
+
+    private void constructNestedPaths(ArrayList<ArrayList<Long>> paths, long nodeId, final Map<Long, ArrayList<Long>> parents, ArrayList<Long> path) {
+
+        if(parents.get(nodeId).contains( - 1L)) {
+            paths.add(new ArrayList<>(path));
+            return;
+        }
+
+        for(long id : parents.get(nodeId)) {
+            path.add(nodeId);
+            constructNestedPaths(paths, id, parents, path);
+            path.remove(path.size() - 1);
+        }
+
     }
 
 }
