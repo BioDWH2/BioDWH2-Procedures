@@ -10,6 +10,7 @@ import de.unibi.agbi.biodwh2.procedures.ResultSet;
 import de.unibi.agbi.biodwh2.procedures.model.BFSResult;
 import de.unibi.agbi.biodwh2.procedures.model.DijkstraResult;
 import de.unibi.agbi.biodwh2.procedures.model.GraphMode;
+import de.unibi.agbi.biodwh2.procedures.model.IdPair;
 import de.unibi.agbi.biodwh2.procedures.utils.*;
 
 import java.io.IOException;
@@ -108,6 +109,45 @@ public final class GraphCentralityProcedures implements RegistryContainer {
         double eccentricity = (1.0 / Collections.max(dijkstraResult.getDistances().values()));
         ResultSet result = new ResultSet();
         result.addRow(new ResultRow(new String[]{"id", "eccentricity"}, new Object[]{node.getId(), eccentricity}));
+        return result;
+    }
+
+    /**
+     * Calculates betweenness centrality for a given node. For each node pair in the graph, the ratio between the total number of
+     * shortest paths and the number of shortest paths that have the target node on them is computed. All ratios are then summed
+     * up, forming the betweenness score for a target node. To prevent node pairs from being processed twice, all processed pairs are
+     * stored in a list for a lookup before the shortest paths are computed.
+     * @param graph The graph in which the node resides
+     * @param nodeId ID of the target node
+     * @param mode Orientation of the graph
+     * @return Result set containing the source node's id and its betweenness value
+     */
+    @Procedure(name = "analysis.network.centrality.betweenness", description="Calculates betweenness centrality for a given node")
+    public static ResultSet betweenness(final BaseGraph graph, final long nodeId, final GraphMode mode) {
+        final ShortestPathFinder shortestPathFinder = new ShortestPathFinder(graph, mode);
+        final ArrayList<IdPair> processedPairs = new ArrayList<>();
+        double betweenness = 0;
+        for(Node node : graph.getNodes()) {
+            long nodeFirstId = node.getId();
+            for(Node otherNode : graph.getNodes()) {
+                long nodeSecondId = otherNode.getId();
+                IdPair currentPair = new IdPair(nodeFirstId, nodeSecondId);
+                if(!processedPairs.contains(currentPair)) {
+                    // calculate ratio if node pair has not been processed yet
+                    if(!Objects.equals(nodeFirstId, nodeSecondId) && !Objects.equals(nodeFirstId, nodeId) && !Objects.equals(nodeSecondId, nodeId)) {
+                        ArrayList<ArrayList<Long>> allShortestPaths = shortestPathFinder.findAllShortestPaths(nodeFirstId, nodeSecondId);
+                        if(allShortestPaths.size() > 0) {
+                            // sum up ratio between number of shortest paths between the two nodes and the number of shortest paths passing through the target
+                            betweenness += (1.0 * ShortestPathFinder.countPathsWithNodeAsWaypoint(allShortestPaths, nodeId) / allShortestPaths.size());
+                        }
+                    }
+                    // pair has been processed -> add to list
+                    processedPairs.add(currentPair);
+                }
+            }
+        }
+        ResultSet result = new ResultSet();
+        result.addRow(new ResultRow(new String[]{"id", "betweenness"}, new Object[]{nodeId, betweenness}));
         return result;
     }
 
