@@ -6,7 +6,7 @@
 
     <groupId>de.unibi.agbi.biodwh2</groupId>
     <artifactId>biodwh2-procedures</artifactId>
-    <version>0.1.5</version>
+    <version>0.1.6</version>
 
     <distributionManagement>
         <repository>
