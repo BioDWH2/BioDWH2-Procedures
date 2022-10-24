@@ -90,7 +90,7 @@ public final class GraphCentralityProcedures implements RegistryContainer {
             closeness += distance;
         }
         closeness =  (graph.getNumberOfNodes() - 1) / closeness;
-        ResultSet result = new ResultSet();
+        ResultSet result = new ResultSet("id", "closeness");
         result.addRow(new ResultRow(new String[]{"id", "closeness"}, new Object[]{node.getId(), closeness}));
         return result;
     }
@@ -107,7 +107,7 @@ public final class GraphCentralityProcedures implements RegistryContainer {
         final ShortestPathFinder shortestPathFinder = new ShortestPathFinder(graph, mode);
         final DijkstraResult dijkstraResult = shortestPathFinder.dijkstra(node.getId(), false);
         double eccentricity = (1.0 / Collections.max(dijkstraResult.getDistances().values()));
-        ResultSet result = new ResultSet();
+        ResultSet result = new ResultSet("id", "eccentricity");
         result.addRow(new ResultRow(new String[]{"id", "eccentricity"}, new Object[]{node.getId(), eccentricity}));
         return result;
     }
@@ -146,7 +146,7 @@ public final class GraphCentralityProcedures implements RegistryContainer {
                 }
             }
         }
-        ResultSet result = new ResultSet();
+        ResultSet result = new ResultSet("id", "betweenness");
         result.addRow(new ResultRow(new String[]{"id", "betweenness"}, new Object[]{nodeId, betweenness}));
         return result;
     }
@@ -162,7 +162,7 @@ public final class GraphCentralityProcedures implements RegistryContainer {
     @Procedure(name = "analysis.network.centrality.mnc", description = "Calculates the maximum neighborhood component for a node")
     public static ResultSet maximumNeighborhoodComponent(final BaseGraph graph, final Node node, final GraphMode mode) throws IOException {
         BFSResult maximumConnectedComponent = GraphProcedureUtils.getMaximumConnectedComponent(graph, node.getId(), mode);
-        ResultSet result = new ResultSet();
+        ResultSet result = new ResultSet("id", "mnc");
         result.addRow(new ResultRow(new String[]{"id", "mnc"}, new Object[]{node.getId(), maximumConnectedComponent.getNodeIds().size()}));
         return result;
     }
@@ -179,7 +179,7 @@ public final class GraphCentralityProcedures implements RegistryContainer {
     public static ResultSet densityOfMaximumNeighborhoodComponent(final BaseGraph graph, final Node node, final GraphMode mode, final double epsilon) throws IOException {
         BFSResult maximumConnectedComponent = GraphProcedureUtils.getMaximumConnectedComponent(graph, node.getId(), mode);
         double density = maximumConnectedComponent.getEdgePathIds().size() / Math.pow(maximumConnectedComponent.getNodeIds().size(), epsilon);
-        ResultSet result = new ResultSet();
+        ResultSet result = new ResultSet("id", "dmnc");
         result.addRow(new ResultRow(new String[]{"id", "dmnc"}, new Object[]{node.getId(), density}));
         return result;
     }
@@ -207,7 +207,7 @@ public final class GraphCentralityProcedures implements RegistryContainer {
             mcc += MathUtils.factorial(clique.size() - 1);
         }
 
-        ResultSet result = new ResultSet();
+        ResultSet result = new ResultSet("id", "mcc");
         result.addRow(new ResultRow(new String[]{"id", "mcc"}, new Object[]{node.getId(), mcc}));
         return result;
     }
