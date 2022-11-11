@@ -9,7 +9,6 @@ import de.unibi.agbi.biodwh2.procedures.model.GraphMode;
 
 import java.io.IOException;
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * Utility class for all functions supporting graph procedures.
@@ -46,26 +45,30 @@ public class GraphProcedureUtils {
 
                 // if neighbor has not yet been visited -> visit neighbor and mark it accordingly
                 final Boolean isVisited = visited.get(neighborId);
-                if (!isVisited) {
-                    visited.put(neighborId, true);
-                    queue.add(neighborId);
-                }
 
-                // collect edge paths between current node and each neighbor
-                Edge edgeOut = graph.findEdge(Edge.FROM_ID_FIELD, currentNodeId, Edge.TO_ID_FIELD, neighborId);
-                if(edgeOut != null) {
-                    if(!edgePathIds.contains(edgeOut.getId())) {
-                        edgePathIds.add(edgeOut.getId());
+                if(isVisited != null) {
+                    if (!isVisited) {
+                        visited.put(neighborId, true);
+                        queue.add(neighborId);
                     }
-                }
-                if(mode == GraphMode.UNDIRECTED) {
-                    Edge edgeIn = graph.findEdge(Edge.FROM_ID_FIELD, neighborId, Edge.TO_ID_FIELD, currentNodeId);
-                    if(edgeIn != null) {
-                        if(!edgePathIds.contains(edgeIn.getId())) {
-                            edgePathIds.add(edgeIn.getId());
+
+                    // collect edge paths between current node and each neighbor
+                    Edge edgeOut = graph.findEdge(Edge.FROM_ID_FIELD, currentNodeId, Edge.TO_ID_FIELD, neighborId);
+                    if(edgeOut != null) {
+                        if(!edgePathIds.contains(edgeOut.getId())) {
+                            edgePathIds.add(edgeOut.getId());
+                        }
+                    }
+                    if(mode == GraphMode.UNDIRECTED) {
+                        Edge edgeIn = graph.findEdge(Edge.FROM_ID_FIELD, neighborId, Edge.TO_ID_FIELD, currentNodeId);
+                        if(edgeIn != null) {
+                            if(!edgePathIds.contains(edgeIn.getId())) {
+                                edgePathIds.add(edgeIn.getId());
+                            }
                         }
                     }
                 }
+
             }
         }
 
