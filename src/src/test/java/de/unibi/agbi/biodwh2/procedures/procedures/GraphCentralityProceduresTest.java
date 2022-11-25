@@ -163,8 +163,8 @@ class GraphCentralityProceduresTest {
         graph.addEdge(node7, node8, "e7-8");
         graph.addEdge(node7, node9, "e7-9");
 
-        assertEquals(7.0, GraphCentralityProcedures.betweenness(graph, node7.getId(), GraphMode.UNDIRECTED).getRow(0).getValue("betweenness"));
-        assertEquals(15.0, GraphCentralityProcedures.betweenness(graph, node4.getId(), GraphMode.UNDIRECTED).getRow(0).getValue("betweenness"));
+        assertEquals(7.0, GraphCentralityProcedures.betweenness(graph, node7, GraphMode.UNDIRECTED).getRow(0).getValue("betweenness"));
+        assertEquals(15.0, GraphCentralityProcedures.betweenness(graph, node4, GraphMode.UNDIRECTED).getRow(0).getValue("betweenness"));
     }
 
     @Test
