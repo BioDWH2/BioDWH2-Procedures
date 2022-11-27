@@ -1,11 +1,12 @@
 package de.unibi.agbi.biodwh2.procedures.model;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Map;
 
 /**
- * Holds the result of Dijkstra's algorithm, i.e. the distances between all nodes and
- * (in case of a single-source/single-target approach) the shortest path between source and target node.
+ * Holds the result of Dijkstra's algorithm, i.e. the distances between all nodes involved and
+ * (in case multiple shortest paths were found) the information about the parents for each node.
  */
 public class DijkstraResult {
 
@@ -14,21 +15,55 @@ public class DijkstraResult {
      */
     private final Map<Long, Long> distances;
     /**
-     * A path from source node to target node (only if a target node has been explicitly specified)
+     * List of possible parents for each node in the result
      */
-    private final ArrayList<Long> path;
+    private Map<Long, ArrayList<Long>> parents;
 
     public DijkstraResult(final Map<Long, Long> distances) {
         this.distances = distances;
-        this.path = new ArrayList<>();
     }
 
-    public DijkstraResult(final Map<Long, Long> distances, final ArrayList<Long> path) {
+    public DijkstraResult(final Map<Long, Long> distances, Map<Long, ArrayList<Long>> parents) {
         this.distances = distances;
-        this.path = path;
+        this.parents = parents;
     }
+
+    /**
+     * Auxiliary function for building up the path list for a node. Applies the recursive
+     * parent search (see below) and reverses the path list, since the recursive traversal is made
+     * from path end to path start.
+     * @param nodeId ID of the target node
+     * @return List of all paths to the target node
+     */
+    public ArrayList<ArrayList<Long>> getPathsToNode(long nodeId) {
+        ArrayList<ArrayList<Long>> paths = new ArrayList<>();
+        constructPaths(paths, nodeId, new ArrayList<>());
+        for(ArrayList<Long> path : paths) {
+            Collections.reverse(path);
+        }
+        return paths;
+    }
+
+    /**
+     * Creates all possible shortest paths to a node by recursively traversing the list of its parents.
+     * @param paths Ultimately holds all possible paths to the target node
+     * @param nodeId ID of the target node
+     * @param path Current path
+     */
+    private void constructPaths(ArrayList<ArrayList<Long>> paths, final long nodeId, ArrayList<Long> path) {
+        if(parents.get(nodeId).contains( - 1L)) {
+            paths.add(new ArrayList<>(path));
+            return;
+        }
+        for(long id : parents.get(nodeId)) {
+            path.add(nodeId);
+            constructPaths(paths, id, path);
+            path.remove(path.size() - 1);
+        }
+    }
+
 
     public Map<Long, Long> getDistances() { return distances; }
-    public ArrayList<Long> getPath() { return path; }
+    public Map<Long, ArrayList<Long>> getParents() { return parents; }
 
 }

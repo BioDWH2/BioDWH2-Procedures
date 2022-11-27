@@ -10,7 +10,6 @@ import org.junit.jupiter.api.TestInstance;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -75,7 +74,7 @@ class ShortestPathFinderTest {
     void findAllShortestPathsWithReachableTarget() {
         final long sourceNodeId = graph.findNode("C").getId();
         final long targetNodeId = graph.findNode("D").getId();
-        ArrayList<ArrayList<Long>> allShortestPaths = shortestPathFinder.findAllShortestPaths(sourceNodeId, targetNodeId);
+        ArrayList<ArrayList<Long>> allShortestPaths = shortestPathFinder.dijkstraWithAllPossibleShortestPaths(sourceNodeId).getPathsToNode(targetNodeId);
         assertEquals(2, allShortestPaths.size());
         for(ArrayList<Long> path : allShortestPaths) {
             assertEquals(2, path.size());
@@ -86,7 +85,7 @@ class ShortestPathFinderTest {
     void findAllShortestPathsWithUnreachableTarget() {
         final long sourceNodeId = graph.findNode("A").getId();
         final long targetNodeId = graph.findNode("G").getId();
-        ArrayList<ArrayList<Long>> allShortestPaths = shortestPathFinder.findAllShortestPaths(sourceNodeId, targetNodeId);
+        ArrayList<ArrayList<Long>> allShortestPaths = shortestPathFinder.dijkstraWithAllPossibleShortestPaths(sourceNodeId).getPathsToNode(targetNodeId);
         assertEquals(0, allShortestPaths.size());
     }
 }

@@ -5,6 +5,7 @@ import de.unibi.agbi.biodwh2.core.model.graph.Node;
 import de.unibi.agbi.biodwh2.procedures.model.DijkstraResult;
 import de.unibi.agbi.biodwh2.procedures.model.DistancePair;
 import de.unibi.agbi.biodwh2.procedures.model.GraphMode;
+import de.unibi.agbi.biodwh2.procedures.model.IdPair;
 
 import java.sql.Array;
 import java.util.*;
@@ -16,16 +17,20 @@ import java.util.*;
  *  - create result containers instead of hash maps (distance mappings, hop nodes, ...)
  */
 public class ShortestPathFinder {
+
     private final BaseGraph graph;
     private HashMap<Long, Long> shortestPaths;
     private GraphMode mode;
     private boolean useEdgeWeights;
+
+    private HashMap<IdPair, DijkstraResult> cachedSourceTarget;
 
     public ShortestPathFinder(final BaseGraph graph, final GraphMode mode, final boolean useEdgeWeights) {
         this.graph = graph;
         this.mode = mode;
         this.useEdgeWeights = useEdgeWeights;
         this.shortestPaths = new HashMap<>();
+        this.cachedSourceTarget = new HashMap<>();
     }
 
     public ShortestPathFinder(final BaseGraph graph, final GraphMode mode) {
@@ -45,12 +50,10 @@ public class ShortestPathFinder {
     public DijkstraResult dijkstra(final long sourceNodeId, final long targetNodeId) {
 
         final Map<Long, Long> distances = new HashMap<>();
-        final Map<Long, Long> predecessors = new HashMap<>();
 
         for (final Node node : graph.getNodes()) {
             if (node.getId() != sourceNodeId) {
                 distances.put(node.getId(), Long.MAX_VALUE);
-                predecessors.put(node.getId(), null);
             }
         }
         distances.put(sourceNodeId, 0L);
@@ -72,7 +75,6 @@ public class ShortestPathFinder {
             for (final Long neighborId : neighbors) {
                 if (distances.get(neighborId) > (distanceCurrent + 1)) {
                     distances.put(neighborId, distanceCurrent + 1);
-                    predecessors.put(neighborId, currentId);
                     queue.add(new DistancePair(neighborId, distances.get(neighborId)));
                 }
             }
@@ -80,7 +82,12 @@ public class ShortestPathFinder {
 
         // filter result map so it only contains the source-target-pair
         distances.keySet().removeIf(key -> !key.equals(targetNodeId));
-        return new DijkstraResult(distances, constructPath(predecessors, targetNodeId));
+
+        // add to cache
+        DijkstraResult result = new DijkstraResult(distances);
+        cachedSourceTarget.put(new IdPair(sourceNodeId, targetNodeId), result);
+
+        return result;
     }
 
     /**
@@ -96,12 +103,10 @@ public class ShortestPathFinder {
 
         // init distance mapping and node queue
         final HashMap<Long, Long> distances = new HashMap<>();
-        final Map<Long, Long> predecessors = new HashMap<>();
 
         for (final Node node : graph.getNodes()) {
             if (!Objects.equals(node.getId(), sourceNodeId)) {
                 distances.put(node.getId(), Long.MAX_VALUE);
-                predecessors.put(node.getId(), null);
             }
         }
         distances.put(sourceNodeId, 0L);
@@ -121,7 +126,6 @@ public class ShortestPathFinder {
             for (final Long neighborId : neighbors) {
                 if (distances.get(neighborId) > (currentDistance + 1)) {
                     distances.put(neighborId, currentDistance + 1);
-                    predecessors.put(neighborId, currentNodeId);
                     queue.add(new DistancePair(neighborId, distances.get(neighborId)));
                 }
             }
@@ -141,12 +145,12 @@ public class ShortestPathFinder {
     }
 
     /**
-     * Modified version of dijkstra's algorithm to find all possible shortest paths between a source node and a target node.
+     * Modified version of dijkstra's algorithm to find all possible shortest paths between a source node all other nodes
+     * of a graph.
      * @param sourceNodeId Source node ID
-     * @param targetNodeId Target node ID
      * @return A list consisting of multiple paths (= lists containing the IDs of all nodes on the path)
      */
-    public ArrayList<ArrayList<Long>> findAllShortestPaths(final long sourceNodeId, final long targetNodeId) {
+    public DijkstraResult dijkstraWithAllPossibleShortestPaths(final long sourceNodeId) {
 
         Map<Long, Long> distances = new HashMap<>();
         Map<Long, ArrayList<Long>> parents = new HashMap<>();
@@ -192,14 +196,7 @@ public class ShortestPathFinder {
                 }
             }
         }
-
-        // Construct list of possible paths from source to target
-        ArrayList<ArrayList<Long>> paths = new ArrayList<>();
-        constructNestedPaths(paths, targetNodeId, parents, new ArrayList<>());
-        for(ArrayList<Long> path : paths) {
-            Collections.reverse(path);
-        }
-        return paths;
+       return new DijkstraResult(distances, parents);
     }
 
     /**
@@ -225,38 +222,5 @@ public class ShortestPathFinder {
         return count;
     }
 
-    /**
-     * Recursively constructs a path from a source node to a target node by ordering all predecessor nodes
-     * for the target node.
-     * @param predecessors Map holding all pairs node -> predecessor
-     * @param targetNodeId ID of the target node (-> last node in path)
-     * @return List containing all node ids in the correct order from source to target
-     */
-    private ArrayList<Long> constructPath(final Map<Long, Long> predecessors, final long targetNodeId) {
-        ArrayList<Long> path = new ArrayList<>();
-        path.add(targetNodeId);
-        long nodeId = targetNodeId;
-        while(predecessors.get(nodeId) != null) {
-            nodeId = predecessors.get(nodeId);
-            System.out.println(nodeId);
-            path.add(0, nodeId);
-        }
-        return path;
-    }
-
-    private void constructNestedPaths(ArrayList<ArrayList<Long>> paths, long nodeId, final Map<Long, ArrayList<Long>> parents, ArrayList<Long> path) {
-
-        if(parents.get(nodeId).contains( - 1L)) {
-            paths.add(new ArrayList<>(path));
-            return;
-        }
-
-        for(long id : parents.get(nodeId)) {
-            path.add(nodeId);
-            constructNestedPaths(paths, id, parents, path);
-            path.remove(path.size() - 1);
-        }
-
-    }
-
+    public HashMap<IdPair, DijkstraResult> getCachedSourceTarget() { return cachedSourceTarget; }
 }
