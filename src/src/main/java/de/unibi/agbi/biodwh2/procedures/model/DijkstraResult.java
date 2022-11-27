@@ -7,6 +7,7 @@ import java.util.Map;
 /**
  * Holds the result of Dijkstra's algorithm, i.e. the distances between all nodes involved and
  * (in case multiple shortest paths were found) the information about the parents for each node.
+ * TODO: include parents hierarchy in first constructor as well
  */
 public class DijkstraResult {
 

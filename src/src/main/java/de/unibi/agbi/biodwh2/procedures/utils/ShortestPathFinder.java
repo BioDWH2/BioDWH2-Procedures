@@ -5,10 +5,9 @@ import de.unibi.agbi.biodwh2.core.model.graph.Node;
 import de.unibi.agbi.biodwh2.procedures.model.DijkstraResult;
 import de.unibi.agbi.biodwh2.procedures.model.DistancePair;
 import de.unibi.agbi.biodwh2.procedures.model.GraphMode;
-import de.unibi.agbi.biodwh2.procedures.model.IdPair;
 
-import java.sql.Array;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Finds shortest paths in a graph
@@ -19,26 +18,17 @@ import java.util.*;
 public class ShortestPathFinder {
 
     private final BaseGraph graph;
-    private HashMap<Long, Long> shortestPaths;
-    private GraphMode mode;
-    private boolean useEdgeWeights;
-
-    private HashMap<IdPair, DijkstraResult> cachedSourceTarget;
-
-    public ShortestPathFinder(final BaseGraph graph, final GraphMode mode, final boolean useEdgeWeights) {
-        this.graph = graph;
-        this.mode = mode;
-        this.useEdgeWeights = useEdgeWeights;
-        this.shortestPaths = new HashMap<>();
-        this.cachedSourceTarget = new HashMap<>();
-    }
+    private final GraphMode mode;
+    private ConcurrentHashMap<Long, DijkstraResult> cache;
 
     public ShortestPathFinder(final BaseGraph graph, final GraphMode mode) {
-        this(graph, mode, false);
+        this.graph = graph;
+        this.mode = mode;
+        this.cache = new ConcurrentHashMap<>();
     }
 
     public ShortestPathFinder(final BaseGraph graph) {
-        this(graph, GraphMode.UNDIRECTED, false);
+        this(graph, GraphMode.UNDIRECTED);
     }
 
     /**
@@ -83,10 +73,8 @@ public class ShortestPathFinder {
         // filter result map so it only contains the source-target-pair
         distances.keySet().removeIf(key -> !key.equals(targetNodeId));
 
-        // add to cache
         DijkstraResult result = new DijkstraResult(distances);
-        cachedSourceTarget.put(new IdPair(sourceNodeId, targetNodeId), result);
-
+        cache.put(sourceNodeId, result);
         return result;
     }
 
@@ -136,12 +124,14 @@ public class ShortestPathFinder {
             distances.put(sourceNodeId, Long.MAX_VALUE);
         }
 
-
         final List<String> labelsList = Arrays.asList(labels);
         if (!labelsList.isEmpty()) {
             distances.entrySet().removeIf(entry -> !labelsList.contains(graph.getNode(entry.getKey()).getLabel()));
         }
-        return new DijkstraResult(distances);
+
+        DijkstraResult result = new DijkstraResult(distances);
+        cache.put(sourceNodeId, result);
+        return result;
     }
 
     /**
@@ -196,7 +186,9 @@ public class ShortestPathFinder {
                 }
             }
         }
-       return new DijkstraResult(distances, parents);
+        DijkstraResult result = new DijkstraResult(distances, parents);
+        cache.put(sourceNodeId, result);
+        return result;
     }
 
     /**
@@ -222,5 +214,5 @@ public class ShortestPathFinder {
         return count;
     }
 
-    public HashMap<IdPair, DijkstraResult> getCachedSourceTarget() { return cachedSourceTarget; }
+    public ConcurrentHashMap<Long, DijkstraResult> getCache() { return cache; }
 }

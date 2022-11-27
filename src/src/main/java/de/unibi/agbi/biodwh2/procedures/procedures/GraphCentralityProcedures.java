@@ -84,7 +84,7 @@ public final class GraphCentralityProcedures implements RegistryContainer {
     public static ResultSet closeness(final BaseGraph graph, final Node node, final GraphMode mode, final String... labels) {
         double closeness = 0;
         final ShortestPathFinder shortestPathFinder = new ShortestPathFinder(graph, mode);
-        final DijkstraResult dijkstraResult = shortestPathFinder.dijkstra(node.getId(), false, labels);
+        final DijkstraResult dijkstraResult = shortestPathFinder.dijkstra(node.getId(), false);
         dijkstraResult.getDistances().remove(node.getId());
         for(long distance : dijkstraResult.getDistances().values()) {
             closeness += distance;
@@ -118,7 +118,6 @@ public final class GraphCentralityProcedures implements RegistryContainer {
      * up, forming the betweenness score for a target node. To prevent node pairs from being processed twice, all processed pairs are
      * stored in a list for a lookup before the shortest paths are computed.
      * @param graph The graph in which the node resides
-     * @param nodeId ID of the target node
      * @param mode Orientation of the graph
      * @return Result set containing the source node's id and its betweenness value
      */
@@ -136,7 +135,8 @@ public final class GraphCentralityProcedures implements RegistryContainer {
                 if(!processedPairs.contains(currentPair)) {
                     // calculate ratio if node pair has not been processed yet
                     if(!Objects.equals(nodeFirstId, nodeSecondId) && !Objects.equals(nodeFirstId, nodeId) && !Objects.equals(nodeSecondId, nodeId)) {
-                        ArrayList<ArrayList<Long>> allShortestPaths = shortestPathFinder.findAllShortestPaths(nodeFirstId, nodeSecondId);
+                        DijkstraResult result = shortestPathFinder.dijkstraWithAllPossibleShortestPaths(nodeFirstId);
+                        ArrayList<ArrayList<Long>> allShortestPaths = result.getPathsToNode(nodeSecondId);
                         if(allShortestPaths.size() > 0) {
                             // sum up ratio between number of shortest paths between the two nodes and the number of shortest paths passing through the target
                             betweenness += (1.0 * ShortestPathFinder.countPathsWithNodeAsWaypoint(allShortestPaths, nodeId) / allShortestPaths.size());
