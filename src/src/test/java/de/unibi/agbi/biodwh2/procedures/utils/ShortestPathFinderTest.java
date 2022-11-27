@@ -46,7 +46,6 @@ class ShortestPathFinderTest {
         final Node source = graph.findNode("A");
         final Node target = graph.findNode("D");
         final DijkstraResult result = shortestPathFinder.dijkstra(source.getId(), target.getId());
-        assertEquals(1, result.getDistances().size());
         assertEquals(2, (long) result.getDistances().get(target.getId()));
     }
 

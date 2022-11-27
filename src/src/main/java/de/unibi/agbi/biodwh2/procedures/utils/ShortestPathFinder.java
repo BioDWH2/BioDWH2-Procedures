@@ -70,9 +70,6 @@ public class ShortestPathFinder {
             }
         }
 
-        // filter result map so it only contains the source-target-pair
-        distances.keySet().removeIf(key -> !key.equals(targetNodeId));
-
         DijkstraResult result = new DijkstraResult(distances);
         cache.put(sourceNodeId, result);
         return result;
@@ -214,5 +211,6 @@ public class ShortestPathFinder {
         return count;
     }
 
+    public GraphMode getMode() { return mode; }
     public ConcurrentHashMap<Long, DijkstraResult> getCache() { return cache; }
 }
