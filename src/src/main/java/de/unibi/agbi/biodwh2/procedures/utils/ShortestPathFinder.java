@@ -39,6 +39,16 @@ public class ShortestPathFinder {
      */
     public DijkstraResult dijkstra(final long sourceNodeId, final long targetNodeId) {
 
+        // cache lookup
+        DijkstraResult cached = cache.get(sourceNodeId);
+        if(cached != null) {
+            return cached;
+        } else {
+            cached = cache.get(targetNodeId);
+            if(cached != null)
+                return cached;
+        }
+
         final Map<Long, Long> distances = new HashMap<>();
 
         for (final Node node : graph.getNodes()) {
@@ -85,6 +95,11 @@ public class ShortestPathFinder {
      * @return A mapping showing all nodes and their shortest paths from source node
      */
     public DijkstraResult dijkstra(final long sourceNodeId, final boolean setSelfInfinity, final String... labels) {
+
+        // cache lookup
+        DijkstraResult cached = cache.get(sourceNodeId);
+        if(cached != null)
+            return cached;
 
         // init distance mapping and node queue
         final HashMap<Long, Long> distances = new HashMap<>();
@@ -137,7 +152,19 @@ public class ShortestPathFinder {
      * @param sourceNodeId Source node ID
      * @return A list consisting of multiple paths (= lists containing the IDs of all nodes on the path)
      */
-    public DijkstraResult dijkstraWithAllPossibleShortestPaths(final long sourceNodeId) {
+    public DijkstraResult dijkstraWithAllPossibleShortestPaths(final long sourceNodeId, final long targetNodeId) {
+
+        // cache lookup
+        DijkstraResult cached = cache.get(sourceNodeId);
+        if(cached != null) {
+            if (cached.getParents() != null)
+                return cached;
+        } else {
+            cached = cache.get(targetNodeId);
+            if(cached != null)
+                if(cached.getParents() != null)
+                    return cached;
+        }
 
         Map<Long, Long> distances = new HashMap<>();
         Map<Long, ArrayList<Long>> parents = new HashMap<>();
@@ -212,5 +239,4 @@ public class ShortestPathFinder {
     }
 
     public GraphMode getMode() { return mode; }
-    public ConcurrentHashMap<Long, DijkstraResult> getCache() { return cache; }
 }

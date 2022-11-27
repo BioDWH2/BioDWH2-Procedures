@@ -135,7 +135,7 @@ public final class GraphCentralityProcedures implements RegistryContainer {
                 if(!processedPairs.contains(currentPair)) {
                     // calculate ratio if node pair has not been processed yet
                     if(!Objects.equals(nodeFirstId, nodeSecondId) && !Objects.equals(nodeFirstId, nodeId) && !Objects.equals(nodeSecondId, nodeId)) {
-                        DijkstraResult result = shortestPathFinder.dijkstraWithAllPossibleShortestPaths(nodeFirstId);
+                        DijkstraResult result = shortestPathFinder.dijkstraWithAllPossibleShortestPaths(nodeFirstId, nodeSecondId);
                         ArrayList<ArrayList<Long>> allShortestPaths = result.getPathsToNode(nodeSecondId);
                         if(allShortestPaths.size() > 0) {
                             // sum up ratio between number of shortest paths between the two nodes and the number of shortest paths passing through the target
