@@ -7,6 +7,7 @@ import de.unibi.agbi.biodwh2.procedures.Procedure;
 import de.unibi.agbi.biodwh2.procedures.RegistryContainer;
 import de.unibi.agbi.biodwh2.procedures.ResultRow;
 import de.unibi.agbi.biodwh2.procedures.ResultSet;
+import de.unibi.agbi.biodwh2.procedures.factory.ShortestPathFinderFactory;
 import de.unibi.agbi.biodwh2.procedures.model.BFSResult;
 import de.unibi.agbi.biodwh2.procedures.model.DijkstraResult;
 import de.unibi.agbi.biodwh2.procedures.model.GraphMode;
@@ -83,7 +84,7 @@ public final class GraphCentralityProcedures implements RegistryContainer {
     @Procedure(name = "analysis.network.centrality.closeness", description = "Calculates the closeness of a graph node")
     public static ResultSet closeness(final BaseGraph graph, final Node node, final GraphMode mode, final String... labels) {
         double closeness = 0;
-        final ShortestPathFinder shortestPathFinder = new ShortestPathFinder(graph, mode);
+        final ShortestPathFinder shortestPathFinder = ShortestPathFinderFactory.getInstance().get(graph, mode);
         final DijkstraResult dijkstraResult = shortestPathFinder.dijkstra(node.getId(), false);
         dijkstraResult.getDistances().remove(node.getId());
         for(long distance : dijkstraResult.getDistances().values()) {
@@ -104,7 +105,7 @@ public final class GraphCentralityProcedures implements RegistryContainer {
      */
     @Procedure(name = "analysis.network.centrality.eccentricity", description = "Calculates the eccentricity of a node")
     public static ResultSet eccentricity(final BaseGraph graph, final Node node, final GraphMode mode) {
-        final ShortestPathFinder shortestPathFinder = new ShortestPathFinder(graph, mode);
+        final ShortestPathFinder shortestPathFinder = ShortestPathFinderFactory.getInstance().get(graph, mode);
         final DijkstraResult dijkstraResult = shortestPathFinder.dijkstra(node.getId(), false);
         double eccentricity = (1.0 / Collections.max(dijkstraResult.getDistances().values()));
         ResultSet result = new ResultSet("id", "eccentricity");
@@ -123,7 +124,7 @@ public final class GraphCentralityProcedures implements RegistryContainer {
      */
     @Procedure(name = "analysis.network.centrality.betweenness", description="Calculates betweenness centrality for a given node")
     public static ResultSet betweenness(final BaseGraph graph, final Node node, final GraphMode mode) {
-        final ShortestPathFinder shortestPathFinder = new ShortestPathFinder(graph, mode);
+        final ShortestPathFinder shortestPathFinder = ShortestPathFinderFactory.getInstance().get(graph, mode);
         final ArrayList<IdPair> processedPairs = new ArrayList<>();
         final long nodeId = node.getId();
         double betweenness = 0;

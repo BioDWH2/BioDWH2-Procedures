@@ -5,14 +5,12 @@ import de.unibi.agbi.biodwh2.core.model.graph.Node;
 
 import de.unibi.agbi.biodwh2.procedures.ResultSet;
 import de.unibi.agbi.biodwh2.procedures.model.GraphMode;
-import de.unibi.agbi.biodwh2.procedures.model.IdPair;
-import org.jsoup.select.Evaluator;
+
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 
 import java.io.IOException;
-import java.util.ArrayList;
 
 import static org.junit.jupiter.api.Assertions.*;
 

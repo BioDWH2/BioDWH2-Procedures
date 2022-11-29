@@ -11,9 +11,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Finds shortest paths in a graph
- * <p>
- * TODO:
- *  - create result containers instead of hash maps (distance mappings, hop nodes, ...)
  */
 public class ShortestPathFinder {
 
@@ -81,7 +78,9 @@ public class ShortestPathFinder {
         }
 
         DijkstraResult result = new DijkstraResult(distances);
-        cache.put(sourceNodeId, result);
+        if(cache.get(sourceNodeId) == null)
+            cache.put(sourceNodeId, result);
+
         return result;
     }
 
@@ -142,7 +141,9 @@ public class ShortestPathFinder {
         }
 
         DijkstraResult result = new DijkstraResult(distances);
-        cache.put(sourceNodeId, result);
+        if(cache.get(sourceNodeId) == null)
+            cache.put(sourceNodeId, result);
+
         return result;
     }
 
