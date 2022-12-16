@@ -63,19 +63,6 @@ class GraphProcedureUtilsTest {
     @Test
     void findComponentsUndirectedTest() {
         final List<BFSResult> components = GraphProcedureUtils.findComponentsUndirected(graph);
-
-        for (BFSResult component : components) {
-            System.out.println("###############################");
-            System.out.println(component.getNodeIds().size() + " Node(s) in component");
-            for (long id : component.getNodeIds()) {
-                System.out.println(graph.getNode(id).getLabel());
-            }
-            System.out.println("Traversal order:");
-            for (final Long edgeId : component.getEdgePathIds()) {
-                System.out.println(graph.getEdgeLabel(edgeId));
-            }
-        }
-
         assertEquals(2, components.size());
         assertEquals(6, components.get(0).getNodeIds().size());
         assertEquals(1, components.get(1).getNodeIds().size());

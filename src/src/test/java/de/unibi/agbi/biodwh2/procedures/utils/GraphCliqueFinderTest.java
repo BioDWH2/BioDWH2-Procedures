@@ -5,7 +5,6 @@ import de.unibi.agbi.biodwh2.core.model.graph.Node;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -33,15 +32,6 @@ class GraphCliqueFinderTest {
         graph.addEdge(nodeD, nodeE, "eDE");
 
         final GraphCliqueFinder graphCliqueFinder = new GraphCliqueFinder(graph);
-
-        for (final List<Long> clique : graphCliqueFinder.getCliques()) {
-            System.out.println("################## NEW CLIQUE FOUND ##################");
-            for (Long nodeId : clique) {
-                System.out.print(" " + graph.getNodeLabel(nodeId) + " ");
-            }
-            System.out.println();
-        }
-
         assertEquals(4, graphCliqueFinder.getCliques().size());
     }
 
