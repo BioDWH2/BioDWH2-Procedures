@@ -3,16 +3,15 @@ package de.unibi.agbi.biodwh2.procedures.procedures;
 import de.unibi.agbi.biodwh2.core.model.graph.Edge;
 import de.unibi.agbi.biodwh2.core.model.graph.BaseGraph;
 import de.unibi.agbi.biodwh2.core.model.graph.Node;
-import de.unibi.agbi.biodwh2.procedures.Procedure;
-import de.unibi.agbi.biodwh2.procedures.RegistryContainer;
-import de.unibi.agbi.biodwh2.procedures.ResultRow;
-import de.unibi.agbi.biodwh2.procedures.ResultSet;
+import de.unibi.agbi.biodwh2.procedures.*;
 import de.unibi.agbi.biodwh2.procedures.factory.ShortestPathFinderFactory;
 import de.unibi.agbi.biodwh2.procedures.model.BFSResult;
 import de.unibi.agbi.biodwh2.procedures.model.DijkstraResult;
 import de.unibi.agbi.biodwh2.procedures.model.GraphMode;
 import de.unibi.agbi.biodwh2.procedures.model.IdPair;
 import de.unibi.agbi.biodwh2.procedures.utils.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.*;
@@ -23,6 +22,8 @@ import java.util.stream.StreamSupport;
  * Contains database procedures for centrality measures and analysis.
  */
 public final class GraphCentralityProcedures implements RegistryContainer {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(GraphCentralityProcedures.class);
 
     /**
      * Calculates the degree of a node, i.e. all outgoing and incoming edges.
@@ -136,7 +137,7 @@ public final class GraphCentralityProcedures implements RegistryContainer {
                 if(!processedPairs.contains(currentPair)) {
                     // calculate ratio if node pair has not been processed yet
                     if(!Objects.equals(nodeFirstId, nodeSecondId) && !Objects.equals(nodeFirstId, nodeId) && !Objects.equals(nodeSecondId, nodeId)) {
-                        DijkstraResult result = shortestPathFinder.dijkstraWithAllPossibleShortestPaths(nodeFirstId, nodeSecondId);
+                        DijkstraResult result = shortestPathFinder.dijkstraWithAllPossibleShortestPaths(nodeFirstId);
                         ArrayList<ArrayList<Long>> allShortestPaths = result.getPathsToNode(nodeSecondId);
                         if(allShortestPaths.size() > 0) {
                             // sum up ratio between number of shortest paths between the two nodes and the number of shortest paths passing through the target
@@ -150,6 +151,74 @@ public final class GraphCentralityProcedures implements RegistryContainer {
         }
         ResultSet result = new ResultSet("id", "betweenness");
         result.addRow(new ResultRow(new String[]{"id", "betweenness"}, new Object[]{nodeId, betweenness}));
+        return result;
+    }
+
+    /**
+     * Calculates an approximated betweenness centrality for each node in the graph using a sampling method
+     * (default: random sampling). This approximation method was proposed by Chehreghani et al. in 2013.
+     * Please note that this approach uses a random uniform distribution so that all nodes have an equal probability
+     * to be selected. This can be fine tuned to achieve better approximation results.
+     * @param graph The graph on which the betweenness centrality is calculated
+     * @param numSamples Number of samples to evaluate
+     * @param mode Mode of the graph (directed or undirected)
+     * @return Result set containing the betweenness centralities for each node in the graph
+     */
+    @Procedure(name = "analysis.network.centrality.betweenness_approximated", description = "Calculates betweenness centrality for a given node")
+    public static ResultSet betweennessApproximated(final BaseGraph graph, final int numSamples, final GraphMode mode) {
+
+        final ShortestPathFinder shortestPathFinder = ShortestPathFinderFactory.getInstance().get(graph, mode);
+        HashMap<Long, Float> betweennessCentralities = new HashMap<>();
+        HashMap<Long, Float> probabilities = new HashMap<>();
+        // assigns a probability to each node (here: uniform distribution)
+        float probabilityUniform = 1f / graph.getNumberOfNodes();
+
+        LOGGER.info("Collecting all graph nodes ...");
+        ArrayList<Long> allNodeIds = new ArrayList<>();
+        Iterable<Node> allGraphNodes = graph.getNodes();
+        for(Node node : allGraphNodes) {
+            allNodeIds.add(node.getId());
+        }
+
+        // initialize probabilities (default: uniform) and betweenness centralities for each node
+        for(Long nodeId : allNodeIds) {
+            betweennessCentralities.put(nodeId, 0f);
+            probabilities.put(nodeId, probabilityUniform);
+        }
+
+        for(int i = 0; i < numSamples; i++) {
+
+            LOGGER.info("Processing sample " + (i + 1) + "/" + numSamples + " ...");
+            // select node with highest probability as next sample
+            long sampleNodeId = Collections.max(probabilities.entrySet(), Map.Entry.comparingByValue()).getKey();
+            float probabilityForSampleNode = probabilities.get(sampleNodeId);
+            probabilities.remove(sampleNodeId);
+            // compute all shortest paths to all other nodes for sampled node
+            DijkstraResult shortestPathsFromSample = shortestPathFinder.dijkstraWithAllPossibleShortestPaths(sampleNodeId);
+
+            LOGGER.info("SSSP computation finished for sample #" + (i + 1));
+
+            // compute dependency on sampled node for each node v in the graph (-> approximate betweenness for v)
+            for(long vId : allNodeIds) {
+                float dependency = 0;
+                for(long tId : allNodeIds) {
+                    if(tId != sampleNodeId && tId != vId && vId != sampleNodeId) {
+                        ArrayList<ArrayList<Long>> allShortestPaths = shortestPathsFromSample.getPathsToNode(tId);
+                        dependency += (ShortestPathFinder.countPathsWithNodeAsWaypoint(allShortestPaths, vId) / allShortestPaths.size());
+                    }
+                }
+                betweennessCentralities.put(vId, betweennessCentralities.get(vId) + (dependency / probabilityForSampleNode));
+            }
+
+        }
+
+        // normalize each betweenness value by number of samples
+        for(long nodeId : allNodeIds) {
+            betweennessCentralities.put(nodeId, betweennessCentralities.get(nodeId) / numSamples);
+        }
+
+        ResultSet result = new ResultSet("betweenness centralities");
+        result.addRow(new ResultRow(new String[]{"betweenness centralities"}, new Object[]{betweennessCentralities}));
         return result;
     }
 

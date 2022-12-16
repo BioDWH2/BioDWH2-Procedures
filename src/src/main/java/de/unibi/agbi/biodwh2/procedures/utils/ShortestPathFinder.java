@@ -153,18 +153,13 @@ public class ShortestPathFinder {
      * @param sourceNodeId Source node ID
      * @return A list consisting of multiple paths (= lists containing the IDs of all nodes on the path)
      */
-    public DijkstraResult dijkstraWithAllPossibleShortestPaths(final long sourceNodeId, final long targetNodeId) {
+    public DijkstraResult dijkstraWithAllPossibleShortestPaths(final long sourceNodeId) {
 
         // cache lookup
         DijkstraResult cached = cache.get(sourceNodeId);
         if(cached != null) {
             if (cached.getParents() != null)
                 return cached;
-        } else {
-            cached = cache.get(targetNodeId);
-            if(cached != null)
-                if(cached.getParents() != null)
-                    return cached;
         }
 
         Map<Long, Long> distances = new HashMap<>();
