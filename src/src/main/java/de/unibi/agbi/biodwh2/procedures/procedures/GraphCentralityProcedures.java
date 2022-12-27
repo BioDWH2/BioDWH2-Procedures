@@ -124,10 +124,11 @@ public final class GraphCentralityProcedures implements RegistryContainer {
      * @return Result set containing the source node's id and its betweenness value
      */
     @Procedure(name = "analysis.network.centrality.betweenness", description="Calculates betweenness centrality for a given node")
-    public static ResultSet betweenness(final BaseGraph graph, final Node node, final GraphMode mode) {
+    public static ResultSet betweenness(final BaseGraph graph, final Node node, final GraphMode mode, final boolean normalize)  {
         final ShortestPathFinder shortestPathFinder = ShortestPathFinderFactory.getInstance().get(graph, mode);
         final ArrayList<IdPair> processedPairs = new ArrayList<>();
         final long nodeId = node.getId();
+        final long numNodes = graph.getNumberOfNodes();
         double betweenness = 0;
         for(Node n : graph.getNodes()) {
             long nodeFirstId = n.getId();
@@ -149,6 +150,16 @@ public final class GraphCentralityProcedures implements RegistryContainer {
                 }
             }
         }
+
+        // perform normalization depending on graph size
+        if(normalize) {
+            if(mode.equals(GraphMode.UNDIRECTED)) {
+                betweenness /= (((numNodes - 1) * (numNodes - 2)) / 2);
+            } else {
+                betweenness /= ((numNodes - 1) * (numNodes - 2));
+            }
+        }
+
         ResultSet result = new ResultSet("id", "betweenness");
         result.addRow(new ResultRow(new String[]{"id", "betweenness"}, new Object[]{nodeId, betweenness}));
         return result;

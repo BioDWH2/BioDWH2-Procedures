@@ -4,16 +4,20 @@ import de.unibi.agbi.biodwh2.core.model.graph.Graph;
 import de.unibi.agbi.biodwh2.core.model.graph.Node;
 
 import de.unibi.agbi.biodwh2.procedures.ResultSet;
+import de.unibi.agbi.biodwh2.procedures.model.DijkstraResult;
 import de.unibi.agbi.biodwh2.procedures.model.GraphMode;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -164,8 +168,17 @@ class GraphCentralityProceduresTest {
         graph.addEdge(node7, node8, "e7-8");
         graph.addEdge(node7, node9, "e7-9");
 
-        assertEquals(7.0, GraphCentralityProcedures.betweenness(graph, node7, GraphMode.UNDIRECTED).getRow(0).getValue("betweenness"));
-        assertEquals(15.0, GraphCentralityProcedures.betweenness(graph, node4, GraphMode.UNDIRECTED).getRow(0).getValue("betweenness"));
+        long numNodes = graph.getNumberOfNodes();
+        double normalizationUndirected = ((numNodes - 1) * (numNodes - 2)) / 2;
+        double expected7 = 7.0;
+        double expected7Normalized = expected7 / normalizationUndirected;
+        double expected4 = 15.0;
+        double expected4Normalized = expected4 / normalizationUndirected;
+
+        assertEquals(expected7, GraphCentralityProcedures.betweenness(graph, node7, GraphMode.UNDIRECTED, false).getRow(0).getValue("betweenness"));
+        assertEquals(expected4, GraphCentralityProcedures.betweenness(graph, node4, GraphMode.UNDIRECTED, false).getRow(0).getValue("betweenness"));
+        assertEquals(expected7Normalized, GraphCentralityProcedures.betweenness(graph, node7, GraphMode.UNDIRECTED, true).getRow(0).getValue("betweenness"));
+        assertEquals(expected4Normalized, GraphCentralityProcedures.betweenness(graph, node4, GraphMode.UNDIRECTED, true).getRow(0).getValue("betweenness"));
     }
 
     @Test
@@ -275,4 +288,5 @@ class GraphCentralityProceduresTest {
         assertEquals(3, (int) GraphCentralityProcedures.maximalCliqueCentrality(graph, graph.findNode("A")).getRow(0)
                                                        .getValue(1));
     }
+
 }
