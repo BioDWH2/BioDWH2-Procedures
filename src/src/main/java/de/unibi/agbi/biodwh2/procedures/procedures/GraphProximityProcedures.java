@@ -11,6 +11,7 @@ import de.unibi.agbi.biodwh2.procedures.model.DijkstraResult;
 import de.unibi.agbi.biodwh2.procedures.model.GraphMode;
 import de.unibi.agbi.biodwh2.procedures.utils.ShortestPathFinder;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -36,13 +37,21 @@ public final class GraphProximityProcedures implements RegistryContainer {
     @Procedure(name = "analysis.network.proximity.closest", description = "Calculates the Closest measure for a drug target set and a disease protein set")
     public static ResultSet closest(final BaseGraph graph, final String labelTarget, final String labelDiseaseProteins,
                                     final GraphMode mode, final boolean isModified) {
+
+        ArrayList<Long> allTargetNodeIds = new ArrayList<>();
+        Iterable<Node> allGraphNodes = graph.getNodes(labelTarget);
+        for(Node node : allGraphNodes) {
+            allTargetNodeIds.add(node.getId());
+        }
+
         float sum = 0;
-        for (final Node targetNode : graph.getNodes(labelTarget)) {
+        for(long targetNodeId : allTargetNodeIds) {
             // retrieve distances to all protein nodes and add minimum to accumulated sum
             final ShortestPathFinder shortestPathFinder = ShortestPathFinderFactory.getInstance().get(graph, mode);
-            final DijkstraResult dijkstraResult = shortestPathFinder.dijkstra(targetNode.getId(), isModified,
-                                                               labelDiseaseProteins);
+            final DijkstraResult dijkstraResult = shortestPathFinder.dijkstra(targetNodeId, isModified,
+                                                                              labelDiseaseProteins);
             sum += Collections.min(dijkstraResult.getDistances().values());
+
         }
         sum *= (1.0 / graph.getNumberOfNodes(labelTarget));
         final ResultSet result = new ResultSet("d_c");
@@ -62,13 +71,20 @@ public final class GraphProximityProcedures implements RegistryContainer {
     @Procedure(name = "analysis.network.proximity.shortest", description = "Calculates the Shortest measure for a drug target set and a disease protein set")
     public static ResultSet shortest(final BaseGraph graph, final String labelTarget, final String labelDiseaseProteins,
                                      final GraphMode mode) {
+
+        ArrayList<Long> allTargetNodeIds = new ArrayList<>();
+        Iterable<Node> allGraphNodes = graph.getNodes(labelTarget);
+        for(Node node : allGraphNodes) {
+            allTargetNodeIds.add(node.getId());
+        }
+
         float sum = 0;
-        for (Node targetNode : graph.getNodes(labelTarget)) {
+        for(long targetNodeId : allTargetNodeIds) {
             // calculate all shortest paths to all disease proteins and add them up ...
             float sumShortestPaths = 0;
             final ShortestPathFinder shortestPathFinder = ShortestPathFinderFactory.get(graph, mode);
-            final DijkstraResult dijkstraResult = shortestPathFinder.dijkstra(targetNode.getId(), false,
-                                                                          labelDiseaseProteins);
+            final DijkstraResult dijkstraResult = shortestPathFinder.dijkstra(targetNodeId, false,
+                                                                              labelDiseaseProteins);
             for (Long distance : dijkstraResult.getDistances().values()) {
                 sumShortestPaths += distance;
             }
@@ -93,12 +109,19 @@ public final class GraphProximityProcedures implements RegistryContainer {
     @Procedure(name = "analysis.network.proximity.kernel", description = "Calculates the Kernel measure for a drug target set and a disease protein set")
     public static ResultSet kernel(final BaseGraph graph, final String labelTargets, final String labelDiseaseProteins,
                                    final GraphMode mode) {
+
+        ArrayList<Long> allTargetNodeIds = new ArrayList<>();
+        Iterable<Node> allGraphNodes = graph.getNodes(labelTargets);
+        for(Node node : allGraphNodes) {
+            allTargetNodeIds.add(node.getId());
+        }
+
         float sum = 0;
-        for (Node drugTarget : graph.getNodes(labelTargets)) {
+        for(long drugTargetId : allTargetNodeIds) {
             double sumKernel = 0;
             final ShortestPathFinder shortestPathFinder = ShortestPathFinderFactory.getInstance().get(graph, mode);
-            final DijkstraResult dijkstraResult = shortestPathFinder.dijkstra(drugTarget.getId(), false,
-                                                                          labelDiseaseProteins);
+            final DijkstraResult dijkstraResult = shortestPathFinder.dijkstra(drugTargetId, false,
+                                                                              labelDiseaseProteins);
             // add up all distances with exponential penalty ...
             for (Long distance : dijkstraResult.getDistances().values()) {
                 sumKernel += (Math.exp(-distance + 1)) / graph.getNumberOfNodes(labelDiseaseProteins);
@@ -177,7 +200,8 @@ public final class GraphProximityProcedures implements RegistryContainer {
         double sum = 0;
         final ShortestPathFinder shortestPathFinder = ShortestPathFinderFactory.get(graph, mode);
         for (final Node drugTarget : graph.getNodes(labelTargets)) {
-            sum += shortestPathFinder.dijkstra(centre.getId(), drugTarget.getId()).getDistances().get(drugTarget.getId());
+            long drugTargetId = drugTarget.getId();
+            sum += shortestPathFinder.dijkstra(centre.getId(), drugTargetId).getDistances().get(drugTargetId);
         }
         sum *= 1.0 / graph.getNumberOfNodes(labelTargets);
 

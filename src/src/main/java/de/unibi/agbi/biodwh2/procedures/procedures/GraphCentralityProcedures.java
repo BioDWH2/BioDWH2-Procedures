@@ -125,15 +125,21 @@ public final class GraphCentralityProcedures implements RegistryContainer {
      */
     @Procedure(name = "analysis.network.centrality.betweenness", description="Calculates betweenness centrality for a given node")
     public static ResultSet betweenness(final BaseGraph graph, final Node node, final GraphMode mode, final boolean normalize)  {
+
         final ShortestPathFinder shortestPathFinder = ShortestPathFinderFactory.getInstance().get(graph, mode);
         final ArrayList<IdPair> processedPairs = new ArrayList<>();
         final long nodeId = node.getId();
         final long numNodes = graph.getNumberOfNodes();
+
+        ArrayList<Long> allNodeIds = new ArrayList<>();
+        Iterable<Node> allGraphNodes = graph.getNodes();
+        for(Node n : allGraphNodes) {
+            allNodeIds.add(n.getId());
+        }
         double betweenness = 0;
-        for(Node n : graph.getNodes()) {
-            long nodeFirstId = n.getId();
-            for(Node otherNode : graph.getNodes()) {
-                long nodeSecondId = otherNode.getId();
+
+        for(long nodeFirstId : allNodeIds) {
+            for(long nodeSecondId : allNodeIds) {
                 IdPair currentPair = new IdPair(nodeFirstId, nodeSecondId);
                 if(!processedPairs.contains(currentPair)) {
                     // calculate ratio if node pair has not been processed yet
@@ -184,7 +190,6 @@ public final class GraphCentralityProcedures implements RegistryContainer {
         // assigns a probability to each node (here: uniform distribution)
         float probabilityUniform = 1f / graph.getNumberOfNodes();
 
-        LOGGER.info("Collecting all graph nodes ...");
         ArrayList<Long> allNodeIds = new ArrayList<>();
         Iterable<Node> allGraphNodes = graph.getNodes();
         for(Node node : allGraphNodes) {
@@ -276,8 +281,6 @@ public final class GraphCentralityProcedures implements RegistryContainer {
     public static ResultSet maximalCliqueCentrality(final BaseGraph graph, final Node node) {
         // find cliques in graph
         GraphCliqueFinder graphCliqueFinder = new GraphCliqueFinder(graph);
-        //ArrayList<Node> nodes = new ArrayList<>();
-        //graph.getNodes().forEach(n -> nodes.add(n));
 
         // obtain all cliques containing target node
         final List<List<Long>> cliquesForNode = graphCliqueFinder.getCliquesForNodeId(node.getId());
